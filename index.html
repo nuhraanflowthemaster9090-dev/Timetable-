@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workm Planner Neon Ultimate Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+html,body{width:100%;height:100%;overflow:hidden;background:#111;color:#fff;}
+body{background:linear-gradient(270deg,#0ff,#00f,#ff00ff,#0ff);background-size:800% 800%;animation:gradientBG 15s ease infinite;}
+@keyframes gradientBG{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+
+/* rest of the CSS and JS code from previous answer */
+</style>
+</head>
+<body>
+<div id="topHeader"><div id="hamburger"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+<div id="app">
+<div id="sidebar">
+<h2>Options</h2>
+<button onclick="showContent('home')">Home</button>
+<button onclick="showContent('religion')">Religion Schedule</button>
+<button onclick="showContent('language')">Language</button>
+<button onclick="showContent('stopwatch')">Stopwatch</button>
+<button onclick="showContent('calculator')">Calculator</button>
+<button onclick="exportTimetable()">Export</button>
+<button onclick="importTimetable()">Import</button>
+</div>
+<div id="main"><div id="pageContent"></div></div>
+</div>
+<div id="bottomNav">
+<button onclick="showContent('home')">Home</button>
+<button onclick="showContent('stopwatch')">Stopwatch</button>
+<button onclick="showContent('calculator')">Calculator</button>
+<button onclick="showContent('profile')">Profile</button>
+</div>
+
+<script>
+// All JS code from previous full example here
+</script>
+</body>
+</html>

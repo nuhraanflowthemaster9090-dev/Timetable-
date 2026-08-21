@@ -2,886 +2,987 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Workm Planner Neon Ultimate Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #07070f;
-  --panel: rgba(10, 14, 32, 0.78);
-  --panel-solid: #0c1024;
-  --line: rgba(0, 245, 255, 0.22);
-  --text: #f4fbff;
-  --muted: #9bb0c8;
-  --cyan: #00f5ff;
-  --magenta: #ff2bd6;
-  --violet: #8b5cff;
-  --green: #00ff9d;
-  --gold: #ffd166;
-  --danger: #ff4d6d;
-  --header-h: 58px;
-  --nav-h: 64px;
-  --sidebar-w: 250px;
-  --hour-h: 56px;
-  --start-hour: 6;
-  --hours: 16;
+  --c1: #00fff6; --c2: #ff00e6; --c3: #4d7fff; --c4: #ffe14d;
+  --ok: #39ff9a; --bad: #ff3b6b; --text: #f7ffff; --muted: #c9e7ff;
+  --glass: rgba(6, 10, 28, 0.62); --line: rgba(0, 255, 246, 0.45);
+  --head: 60px; --nav: 66px; --side: 260px; --hour: 60px; --start: 7; --hours: 14;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; }
+body.theme-magenta { --c1:#ff4ad8; --c2:#00e5ff; --c3:#b44aff; --line:rgba(255,74,216,.5); }
+body.theme-matrix { --c1:#39ff14; --c2:#00ffd0; --c3:#baff39; --line:rgba(57,255,20,.45); }
+body.theme-gold { --c1:#ffd000; --c2:#ff7a00; --c3:#fff1a8; --line:rgba(255,208,0,.5); }
+body.theme-ice { --c1:#9be7ff; --c2:#6d7bff; --c3:#ffffff; --line:rgba(155,231,255,.5); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; }
 body {
-  font-family: 'Outfit', 'Segoe UI', sans-serif;
+  font-family: Rajdhani, 'Segoe UI', sans-serif;
   color: var(--text);
-  background: #07070f;
   overflow: hidden;
-}
-body::before {
-  content: "";
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(900px 500px at 10% -10%, rgba(0, 245, 255, 0.18), transparent 55%),
-    radial-gradient(800px 500px at 110% 10%, rgba(255, 43, 214, 0.16), transparent 50%),
-    radial-gradient(700px 400px at 50% 120%, rgba(139, 92, 255, 0.18), transparent 55%),
-    linear-gradient(270deg, #041018, #12061a, #06101c, #041018);
-  background-size: auto, auto, auto, 800% 800%;
-  animation: gradientBG 18s ease infinite;
+  background: linear-gradient(270deg, #00fff0, #2457ff, #ff00ea, #00fff0);
+  background-size: 800% 800%;
+  animation: gradientBG 14s ease infinite;
 }
 @keyframes gradientBG {
-  0% { background-position: 0 0, 0 0, 0 0, 0% 50%; }
-  50% { background-position: 0 0, 0 0, 0 0, 100% 50%; }
-  100% { background-position: 0 0, 0 0, 0 0, 0% 50%; }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-button, input, select, textarea { font-family: inherit; }
+body::after {
+  content: ""; pointer-events: none; position: fixed; inset: 0; z-index: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.12) 3px 4px),
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.12), transparent 40%);
+  mix-blend-mode: overlay;
+}
+#fx { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#shell { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+button, input, select, textarea { font-family: inherit; color: var(--text); }
 button { cursor: pointer; }
-#topHeader, #app, #bottomNav, #modalRoot, #toasts { position: relative; z-index: 1; }
-
-#topHeader {
-  height: var(--header-h);
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 14px;
-  background: rgba(6, 8, 20, 0.72);
-  border-bottom: 1px solid var(--line);
+.neon {
+  text-shadow: 0 0 8px var(--c1), 0 0 18px var(--c2);
+}
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: 0 0 24px rgba(0,255,246,.18), inset 0 0 24px rgba(255,0,230,.08);
   backdrop-filter: blur(16px);
 }
+
+#topHeader {
+  height: var(--head); display: flex; align-items: center; gap: 10px;
+  padding: 0 12px; background: rgba(4,8,22,.55); border-bottom: 1px solid var(--line);
+}
 #hamburger {
-  width: 42px; height: 42px; border-radius: 12px;
-  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
-  background: rgba(0, 245, 255, 0.08); border: 1px solid var(--line);
+  width: 42px; height: 42px; border-radius: 12px; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; gap: 5px;
+  background: rgba(0,0,0,.25); border: 1px solid var(--line);
 }
-#hamburger .bar {
-  width: 18px; height: 2px; background: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan); transition: 0.25s;
-}
+#hamburger .bar { width: 18px; height: 2px; background: var(--c1); box-shadow: 0 0 8px var(--c1); transition: .25s; }
 #hamburger.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 #hamburger.open .bar:nth-child(2) { opacity: 0; }
 #hamburger.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-.brand { display: flex; flex-direction: column; min-width: 0; }
-.brand h1 {
-  font-family: 'Orbitron', sans-serif; font-size: 14px; letter-spacing: 1.2px;
-  background: linear-gradient(90deg, var(--cyan), var(--magenta));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  white-space: nowrap;
+.brand h1 { font-family: Orbitron, sans-serif; font-size: 15px; letter-spacing: 1px; }
+.brand small { display: block; opacity: .85; font-size: 11px; }
+.grow { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
+.search {
+  width: min(280px, 36vw); padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(0,0,0,.35); outline: none;
 }
-.brand span { font-size: 11px; color: var(--muted); }
-.header-right { margin-inline-start: auto; display: flex; align-items: center; gap: 10px; }
-.live-clock {
-  font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--cyan);
-  text-shadow: 0 0 10px rgba(0,245,255,0.6);
-}
+.clock { font-family: Orbitron, sans-serif; font-size: 13px; color: var(--c1); }
 .avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--cyan), var(--violet));
-  color: #041018; font-weight: 700; font-size: 13px;
-  box-shadow: 0 0 16px rgba(0,245,255,0.35);
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--c1), var(--c2)); color: #041018; font-weight: 800;
 }
 
-#app { display: flex; height: calc(100% - var(--header-h) - var(--nav-h)); }
+#app { flex: 1; display: flex; min-height: 0; }
 #sidebar {
-  width: var(--sidebar-w); flex-shrink: 0;
-  background: var(--panel); border-inline-end: 1px solid var(--line);
-  padding: 18px 12px; overflow-y: auto;
-  transform: translateX(0); transition: transform 0.28s ease;
+  width: var(--side); padding: 16px 12px; overflow: auto; flex-shrink: 0;
+  background: rgba(4,8,22,.48); border-inline-end: 1px solid var(--line);
 }
-html[dir="rtl"] #sidebar { transform: translateX(0); }
-#sidebar h2 {
-  font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px;
-  color: var(--cyan); margin: 4px 8px 14px;
-}
-#sidebar button, .ghost, .primary, .danger, .chip {
-  border: 1px solid var(--line); background: rgba(0,245,255,0.06); color: var(--text);
-}
+#sidebar h2 { font-family: Orbitron, sans-serif; font-size: 11px; letter-spacing: 2px; margin: 0 8px 12px; color: var(--c1); }
 #sidebar button {
-  width: 100%; text-align: start; padding: 11px 12px; margin-bottom: 8px;
-  border-radius: 12px; font-size: 14px; font-weight: 500;
-  display: flex; align-items: center; gap: 10px; transition: 0.2s;
+  width: 100%; text-align: start; margin-bottom: 8px; padding: 11px 12px; border-radius: 14px;
+  border: 1px solid transparent; background: rgba(0,0,0,.22); font-size: 15px; font-weight: 700;
+  display: flex; gap: 10px; align-items: center;
 }
 #sidebar button:hover, #sidebar button.active {
-  background: linear-gradient(90deg, rgba(0,245,255,0.16), rgba(255,43,214,0.12));
-  box-shadow: 0 0 18px rgba(0,245,255,0.12); border-color: var(--cyan);
+  border-color: var(--c1); box-shadow: 0 0 18px rgba(0,255,246,.25);
+  background: linear-gradient(90deg, rgba(0,255,246,.18), rgba(255,0,230,.16));
 }
-#main { flex: 1; overflow: auto; padding: 18px; }
-#pageContent { max-width: 1280px; margin: 0 auto; }
+#main { flex: 1; overflow: auto; padding: 16px; }
+#pageContent { max-width: 1360px; margin: 0 auto; }
 
 #bottomNav {
-  height: var(--nav-h);
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  background: rgba(6, 8, 20, 0.86);
-  border-top: 1px solid var(--line); backdrop-filter: blur(16px);
+  height: var(--nav); display: grid; grid-template-columns: repeat(4, 1fr);
+  background: rgba(4,8,22,.7); border-top: 1px solid var(--line);
 }
-#bottomNav button {
-  border: 0; background: transparent; color: var(--muted);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; font-size: 11px;
-}
-#bottomNav button.active { color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
-#bottomNav .ico { font-size: 18px; }
+#bottomNav button { border: 0; background: none; color: var(--muted); font-weight: 700; font-size: 12px; }
+#bottomNav button.active { color: var(--c1); text-shadow: 0 0 12px var(--c1); }
 
-.card {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
-  padding: 16px; backdrop-filter: blur(18px);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+.hero { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.hero h2 { font-size: 28px; }
+.muted { color: var(--muted); }
+.grid4, .grid3, .grid2 { display: grid; gap: 12px; }
+.grid4 { grid-template-columns: repeat(4, 1fr); }
+.grid3 { grid-template-columns: repeat(3, 1fr); }
+.grid2 { grid-template-columns: 1.3fr .7fr; }
+.card { border-radius: 18px; padding: 14px; }
+.stat b { display: block; font-family: Orbitron, sans-serif; font-size: 22px; color: var(--c1); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.tab, .btn, .ghost, .danger, .chip {
+  border: 1px solid var(--line); background: rgba(0,0,0,.28); border-radius: 12px;
+  padding: 8px 12px; font-weight: 700;
 }
-.row { display: flex; gap: 12px; flex-wrap: wrap; }
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-.stat { padding: 14px; }
-.stat b { display: block; font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--cyan); }
-.stat span { color: var(--muted); font-size: 12px; }
-.greeting h2 { font-size: 26px; margin-bottom: 4px; }
-.greeting p { color: var(--muted); margin-bottom: 16px; }
+.tab.active, .btn {
+  background: linear-gradient(90deg, rgba(0,255,246,.28), rgba(255,0,230,.22));
+  box-shadow: 0 0 16px rgba(0,255,246,.2);
+}
+.danger { border-color: var(--bad); color: #ffd6e0; background: rgba(255,59,107,.16); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+input, select, textarea {
+  background: rgba(0,0,0,.38); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; outline: none;
+}
+label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
 
-.week-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-.week-bar h3 { flex: 1; font-size: 16px; min-width: 180px; }
-.ghost, .primary, .danger {
-  padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600;
+.tt-wrap { overflow: auto; border-radius: 16px; }
+.tt-head, .tt-row {
+  display: grid; grid-template-columns: 64px repeat(7, minmax(110px, 1fr)); min-width: 920px;
 }
-.primary {
-  background: linear-gradient(90deg, rgba(0,245,255,0.25), rgba(139,92,255,0.28));
-  color: #fff; border-color: var(--cyan);
-  box-shadow: 0 0 18px rgba(0,245,255,0.18);
+.tt-head { position: sticky; top: 0; z-index: 3; background: rgba(4,8,22,.92); }
+.tt-head > div, .time-lab { padding: 10px 6px; text-align: center; font-weight: 800; border-bottom: 1px solid var(--line); }
+.tt-head .today { color: var(--c1); box-shadow: inset 0 -3px 0 var(--c1); }
+.tracks {
+  display: grid; grid-template-columns: 64px repeat(7, minmax(110px, 1fr));
+  min-width: 920px; position: relative;
 }
-.danger { background: rgba(255,77,109,0.15); border-color: var(--danger); color: #ffdce3; }
+.time-lab { font-family: Orbitron, sans-serif; font-size: 10px; height: var(--hour); display: grid; place-items: start center; opacity: .85; }
+.track { position: relative; border-inline-start: 1px solid rgba(255,255,255,.12); height: calc(var(--hour) * var(--hours)); }
+.slot { height: var(--hour); border-bottom: 1px dashed rgba(255,255,255,.12); cursor: pointer; }
+.slot:hover { background: rgba(255,255,255,.08); }
+.block {
+  position: absolute; inset-inline: 4px; border-radius: 10px; padding: 6px 8px; overflow: hidden;
+  cursor: pointer; border: 1px solid #fff; color: #041018; font-weight: 700; font-size: 12px;
+  box-shadow: 0 0 18px rgba(255,255,255,.25);
+}
+.block small { display: block; font-weight: 600; opacity: .85; }
+.nowline { position: absolute; left: 64px; right: 0; height: 2px; background: #fff; box-shadow: 0 0 12px #fff; z-index: 2; pointer-events: none; }
+.nowline::before { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; top: -4px; left: -4px; }
 
-.timetable-wrap { overflow: auto; border-radius: 16px; border: 1px solid var(--line); }
-.timetable {
-  min-width: 860px; display: grid;
-  grid-template-columns: 64px repeat(7, 1fr);
-  background: rgba(5,8,20,0.55);
+.list .item {
+  display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12); margin-bottom: 8px; background: rgba(0,0,0,.18);
 }
-.th, .time-cell {
-  position: sticky; top: 0; z-index: 3;
-  background: #0b1026; border-bottom: 1px solid var(--line);
-  padding: 10px 6px; text-align: center; font-size: 12px;
-}
-.th.today { color: var(--cyan); box-shadow: inset 0 -2px 0 var(--cyan); }
-.time-cell { font-family: 'Orbitron', sans-serif; font-size: 10px; color: var(--muted); }
-.day-col {
-  position: relative; border-inline-start: 1px solid var(--line);
-  height: calc(var(--hour-h) * var(--hours));
-}
-.hour-slot {
-  height: var(--hour-h); border-bottom: 1px dashed rgba(0,245,255,0.08);
-  cursor: pointer;
-}
-.hour-slot:hover { background: rgba(0,245,255,0.06); }
-.event {
-  position: absolute; inset-inline: 4px; border-radius: 10px; padding: 6px 8px;
-  font-size: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent;
-  box-shadow: 0 0 16px rgba(0,0,0,0.25);
-}
-.event strong { display: block; font-size: 12px; }
-.event small { opacity: 0.85; }
-.cat-work { background: rgba(0,245,255,0.18); border-color: var(--cyan); }
-.cat-study { background: rgba(139,92,255,0.22); border-color: var(--violet); }
-.cat-personal { background: rgba(255,43,214,0.18); border-color: var(--magenta); }
-.cat-health { background: rgba(0,255,157,0.16); border-color: var(--green); }
-.cat-religion { background: rgba(255,209,102,0.16); border-color: var(--gold); }
-.cat-other { background: rgba(155,176,200,0.16); border-color: #9bb0c8; }
-
-.agenda { margin-top: 16px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; }
-.item {
-  display: flex; gap: 10px; align-items: center; padding: 10px;
-  border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px;
-  background: rgba(255,255,255,0.02);
-}
-.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.empty { color: var(--muted); padding: 20px; text-align: center; }
+.pri-high { box-shadow: inset 3px 0 0 var(--bad); }
+.pri-med { box-shadow: inset 3px 0 0 var(--c4); }
+.pri-low { box-shadow: inset 3px 0 0 var(--ok); }
+.notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.note { min-height: 140px; border-radius: 14px; padding: 12px; color: #1a1020; font-weight: 700; }
+.note textarea { width: 100%; height: 90px; background: transparent; border: 0; color: inherit; resize: none; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal b, .daycell { text-align: center; padding: 8px 4px; border-radius: 10px; }
+.daycell { background: rgba(0,0,0,.2); border: 1px solid transparent; cursor: pointer; min-height: 64px; }
+.daycell.on { border-color: var(--c1); }
+.daycell .dots { display: flex; justify-content: center; gap: 3px; margin-top: 4px; }
+.daycell .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c1); display: block; }
 
 .prayer {
-  display: grid; grid-template-columns: 28px 1fr 120px; gap: 10px; align-items: center;
-  padding: 12px; border: 1px solid var(--line); border-radius: 14px; margin-bottom: 8px;
+  display: grid; grid-template-columns: 28px 1fr auto 130px; gap: 10px; align-items: center;
+  padding: 12px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 8px;
 }
-.prayer input[type="time"], input, select, textarea {
-  background: rgba(0,0,0,0.28); border: 1px solid var(--line); color: var(--text);
-  border-radius: 10px; padding: 8px 10px; outline: none;
+.nextbig { text-align: center; padding: 18px; }
+.nextbig .t { font-family: Orbitron, sans-serif; font-size: clamp(28px, 7vw, 52px); color: var(--c1); }
+.tasbih { text-align: center; }
+.tasbih button.round {
+  width: 160px; height: 160px; border-radius: 50%; margin: 12px auto; display: grid; place-items: center;
+  font-family: Orbitron, sans-serif; font-size: 36px; border: 3px solid var(--c1);
+  box-shadow: 0 0 30px var(--c1); background: rgba(0,0,0,.35);
 }
-.prayer input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--cyan); }
-.progress-bar { height: 10px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin: 8px 0 16px; }
-.progress-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--magenta)); }
 
-.lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.lang-card { text-align: center; padding: 22px 12px; cursor: pointer; }
-.lang-card.active { border-color: var(--cyan); box-shadow: 0 0 22px rgba(0,245,255,0.2); }
-.lang-card b { display: block; font-size: 22px; margin-bottom: 6px; }
-
-.stopwatch { text-align: center; padding: 28px 12px; }
-.sw-time {
-  font-family: 'Orbitron', sans-serif; font-size: clamp(32px, 8vw, 64px);
-  color: var(--cyan); text-shadow: 0 0 24px rgba(0,245,255,0.55); margin: 10px 0 18px;
-}
-.laps { max-width: 420px; margin: 18px auto 0; text-align: start; }
-
-.calc {
-  max-width: 360px; margin: 0 auto; padding: 16px;
-}
-.calc-display {
-  font-family: 'Orbitron', sans-serif; font-size: 32px; text-align: end;
-  padding: 18px 12px; margin-bottom: 12px; min-height: 76px;
-  background: rgba(0,0,0,0.35); border-radius: 14px; border: 1px solid var(--line);
-  overflow: hidden; word-break: break-all;
-}
+.sw { text-align: center; padding: 20px; }
+.led { font-family: Orbitron, sans-serif; font-size: clamp(34px, 8vw, 68px); color: var(--c1); margin: 10px 0 16px; }
+.calc { max-width: 380px; margin: 0 auto; }
+.calc-disp { font-family: Orbitron, sans-serif; font-size: 30px; text-align: end; padding: 16px; min-height: 74px; border-radius: 14px; background: rgba(0,0,0,.4); border: 1px solid var(--line); margin-bottom: 10px; word-break: break-all; }
 .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.calc-grid button {
-  height: 56px; border-radius: 14px; border: 1px solid var(--line);
-  background: rgba(0,245,255,0.08); color: var(--text); font-size: 18px; font-weight: 600;
-}
-.calc-grid button.op { color: var(--cyan); }
-.calc-grid button.eq { background: linear-gradient(135deg, rgba(0,245,255,0.3), rgba(255,43,214,0.28)); grid-column: span 1; }
-.calc-grid button.zero { grid-column: span 2; }
+.calc-grid button { height: 56px; border-radius: 14px; border: 1px solid var(--line); background: rgba(0,0,0,.28); font-size: 20px; font-weight: 800; }
+.calc-grid .op { color: var(--c1); }
+.calc-grid .eq { background: linear-gradient(135deg, rgba(0,255,246,.35), rgba(255,0,230,.3)); }
+.calc-grid .zero { grid-column: span 2; }
+.hist { max-height: 160px; overflow: auto; font-size: 14px; }
 
-.form-grid { display: grid; gap: 10px; }
-.form-grid label { font-size: 12px; color: var(--muted); display: grid; gap: 6px; }
-.chips { display: flex; gap: 8px; flex-wrap: wrap; }
-.chip { padding: 6px 10px; border-radius: 99px; font-size: 12px; }
-.chip.active { border-color: var(--cyan); background: rgba(0,245,255,0.16); }
-
-.modal-bg {
-  position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.55);
-  display: none; align-items: center; justify-content: center; padding: 16px;
+.lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.lang-card { text-align: center; padding: 22px 10px; cursor: pointer; }
+.lang-card.active { outline: 2px solid var(--c1); box-shadow: 0 0 22px rgba(0,255,246,.3); }
+.theme-dot { width: 100%; height: 44px; border-radius: 12px; border: 1px solid #fff3; cursor: pointer; }
+.fab {
+  position: fixed; inset-inline-end: 18px; bottom: calc(var(--nav) + 18px); z-index: 6;
+  width: 58px; height: 58px; border-radius: 50%; border: 0; font-size: 30px;
+  background: linear-gradient(135deg, var(--c1), var(--c2)); color: #041018; font-weight: 800;
+  box-shadow: 0 0 24px var(--c1);
 }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 20; padding: 16px; }
 .modal-bg.show { display: flex; }
-.modal {
-  width: min(520px, 100%); background: var(--panel-solid); border: 1px solid var(--line);
-  border-radius: 18px; padding: 18px; box-shadow: 0 0 40px rgba(0,245,255,0.12);
-}
-.modal h3 { margin-bottom: 12px; }
-#toasts { position: fixed; inset-inline-end: 16px; top: 70px; z-index: 30; display: grid; gap: 8px; }
-.toast {
-  background: #10162e; border: 1px solid var(--cyan); color: var(--text);
-  padding: 10px 12px; border-radius: 12px; min-width: 220px;
-  box-shadow: 0 0 18px rgba(0,245,255,0.2);
-}
-
-.overlay {
-  display: none; position: fixed; inset: var(--header-h) 0 var(--nav-h) 0;
-  background: rgba(0,0,0,0.45); z-index: 8;
-}
-@media (max-width: 900px) {
-  .stats, .agenda { grid-template-columns: 1fr; }
-  #sidebar {
-    position: fixed; top: var(--header-h); bottom: var(--nav-h); inset-inline-start: 0;
-    z-index: 9; transform: translateX(-105%);
-  }
-  html[dir="rtl"] #sidebar { transform: translateX(105%); }
-  #sidebar.open, html[dir="rtl"] #sidebar.open { transform: translateX(0); }
+.modal { width: min(560px, 100%); border-radius: 18px; padding: 16px; background: rgba(8,12,30,.92); border: 1px solid var(--line); max-height: 90vh; overflow: auto; }
+#toasts { position: fixed; top: 70px; inset-inline-end: 14px; z-index: 30; display: grid; gap: 8px; }
+.toast { background: rgba(8,12,30,.95); border: 1px solid var(--c1); padding: 10px 12px; border-radius: 12px; min-width: 200px; }
+.lock { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; background: rgba(4,8,22,.86); }
+.lock.show { display: grid; }
+.overlay { display: none; position: fixed; inset: var(--head) 0 var(--nav) 0; background: rgba(0,0,0,.45); z-index: 8; }
+.empty { text-align: center; padding: 28px 10px; }
+@media (max-width: 980px) {
+  .grid4, .grid3, .grid2 { grid-template-columns: 1fr; }
+  .search { display: none; }
+  #sidebar { position: fixed; top: var(--head); bottom: var(--nav); inset-inline-start: 0; z-index: 9; transform: translateX(-110%); transition: .28s; }
+  html[dir=rtl] #sidebar { transform: translateX(110%); }
+  #sidebar.open, html[dir=rtl] #sidebar.open { transform: none; }
   .overlay.show { display: block; }
 }
-@media (min-width: 901px) {
-  #app { height: calc(100% - var(--header-h)); }
+@media (min-width: 981px) {
   #bottomNav { display: none; }
-  body { --nav-h: 0px; }
+  body { --nav: 0px; }
+  .fab { bottom: 18px; }
+}
+@media print {
+  #topHeader, #sidebar, #bottomNav, .fab, .tabs, .no-print, #fx { display: none !important; }
+  body { animation: none; background: #000; overflow: visible; }
+  #app, #main, #shell { height: auto; overflow: visible; display: block; }
 }
 </style>
 </head>
 <body>
-<div id="topHeader">
-  <div id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+<canvas id="fx"></canvas>
+<div id="shell">
+  <div id="topHeader">
+    <div id="hamburger" onclick="toggleSidebar()"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <div class="brand">
+      <h1 class="neon">WORKM PLANNER</h1>
+      <small id="tagline">Neon Ultimate Pro</small>
+    </div>
+    <div class="grow">
+      <input class="search" id="searchBox" placeholder="Search schedule, tasks, notes..." oninput="runSearch(this.value)">
+      <div class="clock" id="liveClock">00:00:00</div>
+      <div class="avatar" id="avatarBtn" onclick="showContent('profile')">W</div>
+    </div>
   </div>
-  <div class="brand">
-    <h1>WORKM PLANNER</h1>
-    <span id="tagline">Neon Ultimate Pro</span>
+  <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+  <div id="app">
+    <aside id="sidebar">
+      <h2 id="optTitle">OPTIONS</h2>
+      <button data-page="home" onclick="showContent('home')">▦ <span data-i18n="home">Home</span></button>
+      <button data-page="religion" onclick="showContent('religion')">☪ <span data-i18n="religion">Religion Schedule</span></button>
+      <button data-page="language" onclick="showContent('language')">文 <span data-i18n="language">Language</span></button>
+      <button data-page="stopwatch" onclick="showContent('stopwatch')">⏱ <span data-i18n="clocks">Clocks & Focus</span></button>
+      <button data-page="calculator" onclick="showContent('calculator')">∑ <span data-i18n="calculator">Calculator</span></button>
+      <button onclick="exportTimetable()">⬇ <span data-i18n="export">Export JSON</span></button>
+      <button onclick="exportCSV()">⬇ <span data-i18n="csv">Export CSV</span></button>
+      <button onclick="importTimetable()">⬆ <span data-i18n="import">Import</span></button>
+      <button class="no-print" onclick="window.print()">⎙ <span data-i18n="print">Print</span></button>
+      <button data-page="profile" onclick="showContent('profile')">◉ <span data-i18n="profile">Profile</span></button>
+    </aside>
+    <main id="main"><div id="pageContent"></div></main>
   </div>
-  <div class="header-right">
-    <div class="live-clock" id="liveClock">--:--:--</div>
-    <div class="avatar" id="avatarBtn" onclick="showContent('profile')">W</div>
-  </div>
+  <nav id="bottomNav">
+    <button data-page="home" onclick="showContent('home')">Home</button>
+    <button data-page="stopwatch" onclick="showContent('stopwatch')">Focus</button>
+    <button data-page="calculator" onclick="showContent('calculator')">Calc</button>
+    <button data-page="profile" onclick="showContent('profile')">Me</button>
+  </nav>
 </div>
-<div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
-<div id="app">
-  <div id="sidebar">
-    <h2 id="optTitle">Options</h2>
-    <button data-page="home" onclick="showContent('home')">🏠 <span data-i18n="home">Home</span></button>
-    <button data-page="religion" onclick="showContent('religion')">🕌 <span data-i18n="religion">Religion Schedule</span></button>
-    <button data-page="language" onclick="showContent('language')">🌐 <span data-i18n="language">Language</span></button>
-    <button data-page="stopwatch" onclick="showContent('stopwatch')">⏱️ <span data-i18n="stopwatch">Stopwatch</span></button>
-    <button data-page="calculator" onclick="showContent('calculator')">🧮 <span data-i18n="calculator">Calculator</span></button>
-    <button onclick="exportTimetable()">⬇️ <span data-i18n="export">Export</span></button>
-    <button onclick="importTimetable()">⬆️ <span data-i18n="import">Import</span></button>
-    <button data-page="profile" onclick="showContent('profile')">👤 <span data-i18n="profile">Profile</span></button>
-  </div>
-  <div id="main"><div id="pageContent"></div></div>
-</div>
-<div id="bottomNav">
-  <button data-page="home" onclick="showContent('home')"><span class="ico">🏠</span><span data-i18n="home">Home</span></button>
-  <button data-page="stopwatch" onclick="showContent('stopwatch')"><span class="ico">⏱️</span><span data-i18n="stopwatch">Stopwatch</span></button>
-  <button data-page="calculator" onclick="showContent('calculator')"><span class="ico">🧮</span><span data-i18n="calculator">Calculator</span></button>
-  <button data-page="profile" onclick="showContent('profile')"><span class="ico">👤</span><span data-i18n="profile">Profile</span></button>
-</div>
-<div class="modal-bg" id="modalRoot" onclick="if(event.target===this) closeModal()">
-  <div class="modal" id="modalBox"></div>
-</div>
+<button class="fab no-print" id="fab" onclick="quickAdd()">+</button>
+<div class="modal-bg" id="modalRoot" onclick="if(event.target===this) closeModal()"><div class="modal glass" id="modalBox"></div></div>
 <div id="toasts"></div>
+<div class="lock" id="lockScreen">
+  <div class="glass card" style="width:min(360px,92vw);text-align:center">
+    <h2 class="neon">WORKM</h2>
+    <p class="muted" style="margin:8px 0 12px">Enter PIN</p>
+    <input id="pinIn" type="password" inputmode="numeric" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px">
+    <button class="btn" style="width:100%;margin-top:12px" onclick="unlock()">Unlock</button>
+  </div>
+</div>
 <input type="file" id="importFile" accept="application/json" hidden>
 
 <script>
-const STORAGE_KEY = 'workm-planner-v1';
-const DAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
+const KEY = 'workm-planner-v2';
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const I18N = {
   en: {
-    home:'Home', religion:'Religion Schedule', language:'Language', stopwatch:'Stopwatch',
-    calculator:'Calculator', export:'Export', import:'Import', profile:'Profile',
-    tagline:'Manage time. Protect focus.', options:'Options',
-    greeting: (n,p)=>`${p}, ${n}`,
+    home:'Home', religion:'Religion Schedule', language:'Language', clocks:'Clocks & Focus',
+    calculator:'Calculator', export:'Export JSON', csv:'Export CSV', import:'Import', print:'Print',
+    profile:'Profile', options:'OPTIONS', tagline:'Manage every hour. Keep the glow.',
     morning:'Good morning', afternoon:'Good afternoon', evening:'Good evening',
-    today:'Today', week:'This week', add:'Add event', prev:'Prev', next:'Next',
-    noEvents:'No events yet. Tap a time slot to plan your week.',
-    title:'Title', date:'Date', start:'Start', end:'End', notes:'Notes',
-    category:'Category', recurring:'Repeat every week', save:'Save', cancel:'Cancel',
-    delete:'Delete', work:'Work', study:'Study', personal:'Personal', health:'Health',
-    other:'Other', religionCat:'Religion', upcoming:'Upcoming today', weekEvents:'This week',
-    prayers:'Daily prayers', customRel:'Custom religious activity', addCustom:'Add activity',
-    chooseLang:'Choose your language', name:'Display name', hours:'Work hours',
-    notif:'Remind me 5 minutes before events', clear:'Clear all data', saved:'Saved',
-    exported:'Timetable exported', imported:'Timetable imported', invalid:'Invalid file',
-    startSw:'Start', pause:'Pause', lap:'Lap', reset:'Reset', laps:'Laps',
-    done:'Completed', remaining:'Remaining', now:'Now', edit:'Edit event'
-  },
-  ar: {
-    home:'الرئيسية', religion:'الجدول الديني', language:'اللغة', stopwatch:'ساعة الإيقاف',
-    calculator:'آلة حاسبة', export:'تصدير', import:'استيراد', profile:'الملف',
-    tagline:'نظّم وقتك واحمِ تركيزك.', options:'الخيارات',
-    greeting: (n,p)=>`${p}، ${n}`,
-    morning:'صباح الخير', afternoon:'طاب يومك', evening:'مساء الخير',
-    today:'اليوم', week:'هذا الأسبوع', add:'إضافة حدث', prev:'السابق', next:'التالي',
-    noEvents:'لا أحداث بعد. اضغط على وقت لإضافة جدولك.',
-    title:'العنوان', date:'التاريخ', start:'البداية', end:'النهاية', notes:'ملاحظات',
-    category:'التصنيف', recurring:'يتكرر كل أسبوع', save:'حفظ', cancel:'إلغاء',
-    delete:'حذف', work:'عمل', study:'دراسة', personal:'شخصي', health:'صحة',
-    other:'أخرى', religionCat:'دين', upcoming:'اليوم', weekEvents:'هذا الأسبوع',
-    prayers:'الصلوات اليومية', customRel:'نشاط ديني مخصص', addCustom:'إضافة نشاط',
-    chooseLang:'اختر لغتك', name:'الاسم', hours:'ساعات العمل',
-    notif:'ذكّرني قبل الحدث بخمس دقائق', clear:'مسح كل البيانات', saved:'تم الحفظ',
-    exported:'تم التصدير', imported:'تم الاستيراد', invalid:'ملف غير صالح',
-    startSw:'ابدأ', pause:'إيقاف', lap:'لفة', reset:'إعادة', laps:'اللفات',
-    done:'مكتمل', remaining:'المتبقي', now:'الآن', edit:'تعديل الحدث'
-  },
-  ur: {
-    home:'ہوم', religion:'مذہبی شیڈول', language:'زبان', stopwatch:'اسٹاپ واچ',
-    calculator:'کیلکولیٹر', export:'ایکسپورٹ', import:'امپورٹ', profile:'پروفائل',
-    tagline:'وقت سنبھالیں، توجہ بچائیں۔', options:'آپشنز',
-    greeting: (n,p)=>`${p}، ${n}`,
-    morning:'صبح بخیر', afternoon:'دوپہر بخیر', evening:'شام بخیر',
-    today:'آج', week:'اس ہفتے', add:'ایونٹ شامل کریں', prev:'پچھلا', next:'اگلا',
-    noEvents:'ابھی کوئی ایونٹ نہیں۔ وقت پر ٹیپ کر کے شیڈول بنائیں۔',
-    title:'عنوان', date:'تاریخ', start:'شروع', end:'ختم', notes:'نوٹس',
-    category:'قسم', recurring:'ہر ہفتے دہرائیں', save:'محفوظ', cancel:'منسوخ',
-    delete:'حذف', work:'کام', study:'مطالعہ', personal:'ذاتی', health:'صحت',
-    other:'دیگر', religionCat:'مذہب', upcoming:'آج کے کام', weekEvents:'اس ہفتے',
-    prayers:'روزانہ نمازیں', customRel:'اضافی مذہبی سرگرمی', addCustom:'شامل کریں',
-    chooseLang:'زبان منتخب کریں', name:'نام', hours:'کام کے اوقات',
-    notif:'ایونٹ سے ۵ منٹ پہلے یاد دلائیں', clear:'تمام ڈیٹا صاف کریں', saved:'محفوظ ہو گیا',
-    exported:'ایکسپورٹ ہو گیا', imported:'امپورٹ ہو گیا', invalid:'غلط فائل',
-    startSw:'شروع', pause:'روکیں', lap:'لیپ', reset:'ری سیٹ', laps:'لیپس',
-    done:'مکمل', remaining:'باقی', now:'اب', edit:'ایونٹ میں ترمیم'
+    today:'Today', week:'Week', month:'Month', tasks:'Tasks', notes:'Notes', schedule:'Schedule',
+    add:'Add block', addTask:'Add task', addNote:'Add note', save:'Save', cancel:'Cancel', delete:'Delete',
+    title:'Title', start:'Start', end:'End', room:'Room / place', person:'Person / teacher',
+    color:'Color', day:'Day', repeat:'Every week', notesF:'Notes', noEvents:'Empty grid. Tap a slot or load a demo week.',
+    demo:'Load demo week', search:'Search', done:'Done', next:'Next up', now:'Now',
+    work:'Work', study:'Study', personal:'Personal', health:'Health', religionCat:'Religion', other:'Other', break:'Break',
+    prayers:'Prayers', nextPrayer:'Next prayer', tasbih:'Tasbih', customRel:'Custom ibadah',
+    chooseLang:'Language', name:'Name', hours:'Visible hours', theme:'Neon theme', notif:'Remind 5 min before',
+    sound:'Interface sounds', pin:'Lock PIN (4-6 digits)', clear:'Clear all data', saved:'Saved',
+    exported:'Exported', imported:'Imported', invalid:'Invalid file', startSw:'Start', pause:'Pause',
+    lap:'Lap', reset:'Reset', timer:'Timer', pomodoro:'Pomodoro', alarms:'Alarms',
+    focus:'Focus', shortBr:'Break', history:'History', high:'High', med:'Medium', low:'Low',
+    habits:'Habits', quote:'Stay on the block. Finish what you started.', streak:'Prayer streak',
+    csvOk:'CSV downloaded', pinOn:'PIN saved', unlocked:'Welcome back', addAlarm:'Add alarm',
+    minutes:'Minutes', edit:'Edit block', remaining:'Left today', completed:'Completed',
+    stats:'This week', clearLaps:'Clear laps', setTimer:'Set', subject:'Subject / block'
   }
 };
+I18N.ar = Object.assign({}, I18N.en, {
+  home:'الرئيسية', religion:'الجدول الديني', language:'اللغة', clocks:'التركيز والساعات',
+  calculator:'آلة حاسبة', export:'تصدير JSON', csv:'تصدير CSV', import:'استيراد', print:'طباعة',
+  profile:'الملف', options:'الخيارات', tagline:'نظّم كل ساعة.', today:'اليوم', week:'الأسبوع',
+  month:'الشهر', tasks:'المهام', notes:'الملاحظات', schedule:'الجدول', add:'إضافة حصة',
+  addTask:'مهمة', addNote:'ملاحظة', save:'حفظ', cancel:'إلغاء', delete:'حذف', prayers:'الصلوات',
+  nextPrayer:'الصلاة التالية', tasbih:'التسبيح', chooseLang:'اللغة', demo:'أسبوع تجريبي'
+});
+I18N.ur = Object.assign({}, I18N.en, {
+  home:'ہوم', religion:'مذہبی شیڈول', language:'زبان', clocks:'فوکس اور گھڑیاں',
+  calculator:'کیلکولیٹر', export:'ایکسپورٹ JSON', csv:'ایکسپورٹ CSV', import:'امپورٹ', print:'پرنٹ',
+  profile:'پروفائل', options:'آپشنز', tagline:'ہر گھنٹہ سنبھالیں۔', today:'آج', week:'ہفتہ',
+  month:'مہینہ', tasks:'کام', notes:'نوٹس', schedule:'ٹائم ٹیبل', add:'بلاک شامل کریں',
+  addTask:'ٹاسک', addNote:'نوٹ', save:'محفوظ', cancel:'منسوخ', delete:'حذف', prayers:'نمازیں',
+  nextPrayer:'اگلی نماز', tasbih:'تسبیح', chooseLang:'زبان', demo:'ڈیمو ہفتہ'
+});
 
 const defaultState = () => ({
-  profile: { name: 'Planner', lang: 'en', workStart: '09:00', workEnd: '17:00', notif: false, weekStarts: 'mon' },
-  events: [],
-  prayers: { fajr:'05:15', dhuhr:'12:30', asr:'16:00', maghrib:'18:45', isha:'20:10' },
-  prayerLog: {},
-  customReligion: []
+  profile: { name:'', lang:'en', theme:'cyber', notif:false, sound:true, pin:'', hourStart:7, hourEnd:21, fmt24:true },
+  events: [], tasks: [], notes: [], habits: [
+    { id:'h1', title:'Wake on time', log:{} },
+    { id:'h2', title:'Deep work', log:{} },
+    { id:'h3', title:'No late night scroll', log:{} }
+  ],
+  prayers: { fajr:'05:15', dhuhr:'12:30', asr:'16:05', maghrib:'18:48', isha:'20:12' },
+  prayerLog: {}, customReligion: [], alarms: [], calcHistory: [], tasbih: 0, homeTab: 'schedule'
 });
 
 let state = loadState();
-let currentPage = 'home';
-let weekOffset = 0;
-let sw = { ms: 0, running: false, started: 0, laps: [], timer: null };
-let calc = { display: '0', acc: null, op: null, fresh: false };
+let page = 'home';
+let monthCursor = new Date();
+let selectedDay = todayISO();
+let sw = { ms:0, run:false, t0:0, laps:[], int:null };
+let timer = { left:25*60, run:false, int:null, total:25*60, mode:'timer' };
+let pomo = { left:25*60, run:false, int:null, phase:'focus', cycles:0 };
+let calc = { display:'0', acc:null, op:null, fresh:false };
+let clockTab = 'stopwatch';
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(KEY) || localStorage.getItem('workm-planner-v1');
     if (!raw) return defaultState();
-    return { ...defaultState(), ...JSON.parse(raw) };
+    const s = { ...defaultState(), ...JSON.parse(raw) };
+    s.profile = { ...defaultState().profile, ...(s.profile||{}) };
+    ['events','tasks','notes','habits','alarms','customReligion'].forEach(k => { if (!Array.isArray(s[k])) s[k] = defaultState()[k]; });
+    return s;
   } catch { return defaultState(); }
 }
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function t(key) {
-  const pack = I18N[state.profile.lang] || I18N.en;
-  return pack[key] ?? I18N.en[key] ?? key;
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function t(k) { return (I18N[state.profile.lang]||I18N.en)[k] ?? I18N.en[k] ?? k; }
+function esc(s) { return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid() { return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3); }
+function pad(n,z=2){ return String(n).padStart(z,'0'); }
+function todayISO(d=new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function minutes(tt){ const [h,m]=(tt||'00:00').split(':').map(Number); return h*60+m; }
+function fromMin(m){ m=((m%1440)+1440)%1440; return `${pad(Math.floor(m/60))}:${pad(m%60)}`; }
+function dow(iso){ return (new Date(iso+'T00:00:00').getDay()+6)%7; }
+function beep(freq=880, ms=180) {
+  if (!state.profile.sound) return;
+  try {
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ac.createOscillator(); const g = ac.createGain();
+    o.frequency.value = freq; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.08, ac.currentTime);
+    o.start(); setTimeout(() => { o.stop(); ac.close(); }, ms);
+  } catch {}
 }
-function escapeHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
-function pad(n, z=2) { return String(n).padStart(z,'0'); }
-function todayISO(d=new Date()) {
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-function startOfWeek(offset=0) {
-  const d = new Date();
-  const day = d.getDay(); // 0 sun
-  const diff = (day === 0 ? -6 : 1 - day) + offset * 7;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0,0,0,0);
-  return d;
-}
-function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
-function minutes(t) { const [h,m] = (t||'00:00').split(':').map(Number); return h*60+m; }
-function period() {
-  const h = new Date().getHours();
-  return h < 12 ? t('morning') : h < 17 ? t('afternoon') : t('evening');
-}
-function toast(msg) {
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.textContent = msg;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 2600);
-}
-function applyChrome() {
-  const lang = state.profile.lang || 'en';
-  document.documentElement.lang = lang;
-  document.documentElement.dir = (lang === 'ar' || lang === 'ur') ? 'rtl' : 'ltr';
-  document.getElementById('tagline').textContent = t('tagline');
-  document.getElementById('optTitle').textContent = t('options');
-  document.getElementById('avatarBtn').textContent = (state.profile.name || 'W').trim().charAt(0).toUpperCase();
-  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
-  document.querySelectorAll('#sidebar [data-page], #bottomNav [data-page]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.page === currentPage);
-  });
-}
+function toast(msg){ const el=document.createElement('div'); el.className='toast'; el.textContent=msg; document.getElementById('toasts').appendChild(el); setTimeout(()=>el.remove(),2500); }
+function period(){ const h=new Date().getHours(); return h<12?t('morning'):h<17?t('afternoon'):t('evening'); }
+function hourCfg(){ const s=Number(state.profile.hourStart||7), e=Number(state.profile.hourEnd||21); return { start:s, hours:Math.max(8, e-s) }; }
 
-function toggleSidebar(force) {
-  const sb = document.getElementById('sidebar');
-  const open = typeof force === 'boolean' ? force : !sb.classList.contains('open');
+function applyChrome(){
+  const lang=state.profile.lang||'en';
+  document.documentElement.lang=lang;
+  document.documentElement.dir=(lang==='ar'||lang==='ur')?'rtl':'ltr';
+  document.body.className = 'theme-' + (state.profile.theme||'cyber');
+  if (state.profile.theme==='cyber') document.body.className='';
+  document.getElementById('tagline').textContent=t('tagline');
+  document.getElementById('optTitle').textContent=t('options');
+  document.getElementById('avatarBtn').textContent=(state.profile.name||'W').trim().charAt(0).toUpperCase();
+  document.getElementById('searchBox').placeholder=t('search');
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('#sidebar [data-page], #bottomNav [data-page]').forEach(b => b.classList.toggle('active', b.dataset.page===page));
+  document.getElementById('fab').style.display = (page==='home'||page==='religion') ? 'block' : 'none';
+}
+function toggleSidebar(force){
+  const sb=document.getElementById('sidebar');
+  const open=typeof force==='boolean'?force:!sb.classList.contains('open');
   sb.classList.toggle('open', open);
   document.getElementById('hamburger').classList.toggle('open', open);
-  document.getElementById('overlay').classList.toggle('show', open && window.innerWidth <= 900);
+  document.getElementById('overlay').classList.toggle('show', open && innerWidth<=980);
+}
+function showContent(p){
+  page=p; if (innerWidth<=980) toggleSidebar(false); applyChrome();
+  const root=document.getElementById('pageContent');
+  ({ home:renderHome, religion:renderReligion, language:renderLanguage, stopwatch:renderClocks, calculator:renderCalc, profile:renderProfile }[p]||renderHome)(root);
+}
+function quickAdd(){
+  if (page==='religion') addCustomRel();
+  else if (state.homeTab==='tasks') addTask();
+  else if (state.homeTab==='notes') addNote();
+  else openEventModal({ date: todayISO(), start: fromMin(Math.floor(new Date().getHours()*60/30)*30) });
 }
 
-function showContent(page) {
-  currentPage = page;
-  if (window.innerWidth <= 900) toggleSidebar(false);
-  applyChrome();
-  const root = document.getElementById('pageContent');
-  const pages = { home: renderHome, religion: renderReligion, language: renderLanguage, stopwatch: renderStopwatch, calculator: renderCalculator, profile: renderProfile };
-  (pages[page] || renderHome)(root);
+function eventsOn(iso){
+  const d=dow(iso);
+  return state.events.filter(e => (e.repeat || e.recurring) ? e.dow===d : e.date===iso).sort((a,b)=>minutes(a.start)-minutes(b.start));
+}
+function allWeekEvents(){
+  return Array.from({length:7}, (_,i) => {
+    const d=new Date(); const diff=(d.getDay()===0?-6:1-d.getDay())+i; const x=new Date(d); x.setDate(d.getDate()+diff);
+    const iso=todayISO(x); return { iso, dow:i, list: eventsOn(iso) };
+  });
 }
 
-function eventsForDate(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  const dow = (d.getDay() + 6) % 7; // mon=0
-  return state.events.filter(ev => ev.recurring ? ev.dow === dow : ev.date === iso)
-    .sort((a,b) => minutes(a.start) - minutes(b.start));
+function renderHome(root){
+  const tab=state.homeTab||'schedule';
+  const today=todayISO();
+  const todays=eventsOn(today);
+  const nowm=new Date().getHours()*60+new Date().getMinutes();
+  const current=todays.find(e => minutes(e.start)<=nowm && nowm<minutes(e.end));
+  const next=todays.find(e => minutes(e.start)>nowm);
+  const tasksLeft=state.tasks.filter(x=>!x.done).length;
+  root.innerHTML=`
+    <div class="hero">
+      <div>
+        <h2 class="neon">${esc(period())}${state.profile.name? ', '+esc(state.profile.name):''}</h2>
+        <p class="muted">${new Date().toLocaleDateString(document.documentElement.lang,{weekday:'long',day:'numeric',month:'long'})} · ${t('quote')}</p>
+      </div>
+      <div class="row no-print">
+        <button class="btn" onclick="loadDemo()">${t('demo')}</button>
+        <button class="ghost" onclick="window.print()">${t('print')}</button>
+      </div>
+    </div>
+    <div class="grid4">
+      <div class="glass card stat"><b>${todays.length}</b><span>${t('today')}</span></div>
+      <div class="glass card stat"><b>${current?esc(current.title):'—'}</b><span>${t('now')}</span></div>
+      <div class="glass card stat"><b>${next?esc(next.title)+' '+next.start:'—'}</b><span>${t('next')}</span></div>
+      <div class="glass card stat"><b>${tasksLeft}</b><span>${t('tasks')}</span></div>
+    </div>
+    <div class="tabs no-print">
+      ${['schedule','today','tasks','notes','month','habits'].map(k=>`<button class="tab ${tab===k?'active':''}" onclick="state.homeTab='${k}';save();showContent('home')">${t(k)}</button>`).join('')}
+    </div>
+    <div id="homeBody"></div>`;
+  const body=root.querySelector('#homeBody');
+  if (tab==='schedule') renderSchedule(body);
+  else if (tab==='today') renderToday(body, todays, current, next);
+  else if (tab==='tasks') renderTasks(body);
+  else if (tab==='notes') renderNotes(body);
+  else if (tab==='month') renderMonth(body);
+  else renderHabits(body);
 }
 
-function renderHome(root) {
-  const start = startOfWeek(weekOffset);
-  const days = Array.from({length:7}, (_,i) => addDays(start, i));
-  const today = todayISO();
-  const todays = eventsForDate(today);
-  const weekCount = days.reduce((n,d)=> n + eventsForDate(todayISO(d)).length, 0);
-  const doneToday = todays.filter(e => e.done).length;
-
-  root.innerHTML = `
-    <div class="greeting">
-      <h2>${escapeHtml(t('greeting')(state.profile.name || 'Planner', period()))}</h2>
-      <p>${new Date().toLocaleDateString(document.documentElement.lang, { weekday:'long', day:'numeric', month:'long', year:'numeric' })}</p>
-    </div>
-    <div class="stats">
-      <div class="card stat"><b>${todays.length}</b><span>${t('today')}</span></div>
-      <div class="card stat"><b>${weekCount}</b><span>${t('week')}</span></div>
-      <div class="card stat"><b>${doneToday}</b><span>${t('done')}</span></div>
-      <div class="card stat"><b>${Math.max(todays.length-doneToday,0)}</b><span>${t('remaining')}</span></div>
-    </div>
-    <div class="week-bar">
-      <button class="ghost" onclick="weekOffset--; showContent('home')">${t('prev')}</button>
-      <h3>${start.toLocaleDateString(document.documentElement.lang, {month:'short', day:'numeric'})} — ${addDays(start,6).toLocaleDateString(document.documentElement.lang, {month:'short', day:'numeric'})}</h3>
-      <button class="ghost" onclick="weekOffset=0; showContent('home')">${t('today')}</button>
-      <button class="ghost" onclick="weekOffset++; showContent('home')">${t('next')}</button>
-      <button class="primary" onclick="openEventModal()">${t('add')}</button>
-    </div>
-    <div class="timetable-wrap card" style="padding:0">
-      <div class="timetable">
-        <div class="th"></div>
-        ${days.map(d => `<div class="th ${todayISO(d)===today?'today':''}">${d.toLocaleDateString(document.documentElement.lang,{weekday:'short'})}<br>${d.getDate()}</div>`).join('')}
-        <div>${Array.from({length:16}, (_,h)=>`<div class="time-cell" style="height:var(--hour-h)">${pad(6+h)}:00</div>`).join('')}</div>
-        ${days.map((d) => {
-          const iso = todayISO(d);
-          const evs = eventsForDate(iso);
-          return `<div class="day-col" data-date="${iso}">
-            ${Array.from({length:16}, (_,h)=>`<div class="hour-slot" onclick="openEventModal({date:'${iso}', start:'${pad(6+h)}:00'})"></div>`).join('')}
-            ${evs.map(ev => {
-              const top = ((minutes(ev.start) - 6*60) / 60) * 56;
-              const height = Math.max(28, ((minutes(ev.end) - minutes(ev.start)) / 60) * 56);
-              return `<div class="event cat-${escapeHtml(ev.category||'other')}" style="top:${top}px;height:${height}px" onclick="event.stopPropagation(); openEventModal({id:'${ev.id}'})">
-                <strong>${escapeHtml(ev.title)}</strong>
-                <small>${escapeHtml(ev.start)}–${escapeHtml(ev.end)}</small>
-              </div>`;
+function renderSchedule(el){
+  const { start, hours } = hourCfg();
+  document.documentElement.style.setProperty('--start', start);
+  document.documentElement.style.setProperty('--hours', hours);
+  const week=allWeekEvents();
+  const today=todayISO();
+  const nowm=new Date().getHours()*60+new Date().getMinutes();
+  const nowTop=((nowm-start*60)/60)*60;
+  el.innerHTML=`
+    <div class="glass tt-wrap">
+      <div class="tt-head">${[''].concat(week.map(w=>w.iso)).map((iso,i)=> i===0?'<div></div>':`<div class="${iso===today?'today':''}">${DAYS[i-1]}<br>${iso.slice(8)}</div>`).join('')}</div>
+      <div class="tracks">
+        <div>${Array.from({length:hours},(_,h)=>`<div class="time-lab">${pad(start+h)}:00</div>`).join('')}</div>
+        ${week.map(w=>`
+          <div class="track">
+            ${Array.from({length:hours},(_,h)=>`<div class="slot" onclick="openEventModal({date:'${w.iso}',start:'${pad(start+h)}:00',repeat:true})"></div>`).join('')}
+            ${w.list.map(ev=>{
+              const top=((minutes(ev.start)-start*60)/60)*60;
+              const h=Math.max(26, ((minutes(ev.end)-minutes(ev.start))/60)*60);
+              return `<div class="block" style="top:${top}px;height:${h}px;background:${esc(ev.color||'#00fff6')}" onclick="event.stopPropagation();openEventModal({id:'${ev.id}'})"><strong>${esc(ev.title)}</strong><small>${esc(ev.start)}–${esc(ev.end)}${ev.room?' · '+esc(ev.room):''}</small></div>`;
             }).join('')}
-          </div>`;
-        }).join('')}
+          </div>`).join('')}
+        ${nowTop>=0 && nowTop<=hours*60 ? `<div class="nowline" style="top:${nowTop}px"></div>`:''}
       </div>
     </div>
-    <div class="agenda">
-      <div class="card">
-        <h3 style="margin-bottom:10px">${t('upcoming')}</h3>
-        ${todays.length ? todays.map(ev => `
-          <div class="item" onclick="openEventModal({id:'${ev.id}'})">
-            <div class="dot" style="background:var(--cyan)"></div>
-            <div style="flex:1">
-              <strong>${escapeHtml(ev.title)}</strong>
-              <div style="color:var(--muted);font-size:12px">${escapeHtml(ev.start)} – ${escapeHtml(ev.end)}</div>
-            </div>
-            <input type="checkbox" ${ev.done?'checked':''} onclick="event.stopPropagation(); toggleDone('${ev.id}')">
-          </div>`).join('') : `<div class="empty">${t('noEvents')}</div>`}
-      </div>
-      <div class="card">
-        <h3 style="margin-bottom:10px">${t('now')}</h3>
-        <p style="color:var(--muted);font-size:13px">${t('hours')}: ${escapeHtml(state.profile.workStart)} – ${escapeHtml(state.profile.workEnd)}</p>
-        <div class="progress-bar" style="margin-top:12px"><span style="width:${Math.min(100, Math.max(0, ((new Date().getHours()*60+new Date().getMinutes()-minutes(state.profile.workStart)) / (minutes(state.profile.workEnd)-minutes(state.profile.workStart)||1))*100))}%"></span></div>
-        <button class="primary" style="width:100%;margin-top:8px" onclick="openEventModal()">${t('add')}</button>
-      </div>
-    </div>
+    ${state.events.length? '' : `<div class="empty glass card" style="margin-top:12px">${t('noEvents')}<div style="margin-top:10px"><button class="btn" onclick="loadDemo()">${t('demo')}</button></div></div>`}
   `;
 }
 
-function toggleDone(id) {
-  const ev = state.events.find(e => e.id === id);
-  if (!ev) return;
-  ev.done = !ev.done;
+function renderToday(el, todays, current, next){
+  el.innerHTML=`<div class="grid2">
+    <div class="glass card list">
+      <h3>${t('today')}</h3>
+      ${todays.length? todays.map(ev=>`
+        <div class="item" onclick="openEventModal({id:'${ev.id}'})">
+          <input type="checkbox" ${ev.done?'checked':''} onclick="event.stopPropagation();toggleEventDone('${ev.id}')">
+          <div style="flex:1"><strong>${esc(ev.title)}</strong><div class="muted">${ev.start} – ${ev.end} ${ev.person? '· '+esc(ev.person):''} ${ev.room? '· '+esc(ev.room):''}</div></div>
+          <span class="chip">${current&&current.id===ev.id?t('now'): next&&next.id===ev.id?t('next'):''}</span>
+        </div>`).join('') : `<p class="empty">${t('noEvents')}</p>`}
+    </div>
+    <div class="glass card">
+      <h3>${t('next')}</h3>
+      <div class="nextbig"><div>${next?esc(next.title): current?esc(current.title):'—'}</div>
+      <div class="t" id="countDown">--:--</div>
+      <p class="muted">${next? next.start : current? current.end : ''}</p></div>
+    </div>
+  </div>`;
+  tickCountdown(current, next);
+}
+
+function tickCountdown(current, next){
+  const target = next? minutes(next.start) : current? minutes(current.end) : null;
+  const el=document.getElementById('countDown'); if (!el || target==null) return;
+  const now=new Date().getHours()*60+new Date().getMinutes();
+  let d=target-now; if (d<0) d=0;
+  el.textContent=`${pad(Math.floor(d/60))}:${pad(d%60)}`;
+}
+
+function toggleEventDone(id){ const e=state.events.find(x=>x.id===id); if(!e)return; e.done=!e.done; save(); showContent('home'); }
+
+function renderTasks(el){
+  el.innerHTML=`<div class="glass card">
+    <div class="row" style="margin-bottom:10px">
+      <input id="taskIn" placeholder="${t('addTask')}" style="flex:1" onkeydown="if(event.key==='Enter')addTask()">
+      <select id="taskPri"><option value="high">${t('high')}</option><option value="med" selected>${t('med')}</option><option value="low">${t('low')}</option></select>
+      <input id="taskDue" type="date" value="${todayISO()}">
+      <button class="btn" onclick="addTask()">+</button>
+    </div>
+    <div class="list">
+      ${state.tasks.length? state.tasks.map(tk=>`
+        <div class="item pri-${tk.priority||'med'}">
+          <input type="checkbox" ${tk.done?'checked':''} onchange="tkDone('${tk.id}', this.checked)">
+          <div style="flex:1;${tk.done?'opacity:.5;text-decoration:line-through':''}"><strong>${esc(tk.title)}</strong><div class="muted">${esc(tk.due||'')}</div></div>
+          <button class="danger" onclick="delTask('${tk.id}')">${t('delete')}</button>
+        </div>`).join('') : `<p class="empty">${t('addTask')}</p>`}
+    </div>
+  </div>`;
+}
+function addTask(){
+  const inEl=document.getElementById('taskIn');
+  const title=(inEl? inEl.value : prompt(t('addTask'))||'').trim();
+  if (!title) return;
+  const priority=document.getElementById('taskPri')?.value || 'med';
+  const due=document.getElementById('taskDue')?.value || todayISO();
+  state.tasks.unshift({ id:uid(), title, priority, due, done:false });
+  save(); beep(520,80); showContent('home');
+}
+function tkDone(id,v){ const x=state.tasks.find(t=>t.id===id); if(x){ x.done=v; save(); } }
+function delTask(id){ state.tasks=state.tasks.filter(t=>t.id!==id); save(); showContent('home'); }
+
+function renderNotes(el){
+  const colors=['#fffb87','#7dffc3','#ffb3ec','#9ad8ff','#ffd09a'];
+  el.innerHTML=`<div class="row no-print" style="margin-bottom:10px"><button class="btn" onclick="addNote()">${t('addNote')}</button></div>
+    <div class="notes">${state.notes.map(n=>`
+      <div class="note" style="background:${esc(n.color)}">
+        <textarea oninput="updNote('${n.id}', this.value)">${esc(n.text)}</textarea>
+        <button class="danger" onclick="delNote('${n.id}')">×</button>
+      </div>`).join('')}</div>`;
+}
+function addNote(){
+  const colors=['#fffb87','#7dffc3','#ffb3ec','#9ad8ff','#ffd09a'];
+  state.notes.unshift({ id:uid(), text:'', color: colors[state.notes.length%colors.length] });
   save(); showContent('home');
 }
+function updNote(id,v){ const n=state.notes.find(x=>x.id===id); if(n){ n.text=v; save(); } }
+function delNote(id){ state.notes=state.notes.filter(n=>n.id!==id); save(); showContent('home'); }
 
-function openEventModal(opts={}) {
-  const existing = opts.id ? state.events.find(e => e.id === opts.id) : null;
-  const ev = existing || {
-    id: '', title: '', date: opts.date || todayISO(), start: opts.start || '09:00',
-    end: opts.end || '10:00', category: 'work', notes: '', recurring: false, dow: 0, done: false
-  };
-  const cats = ['work','study','personal','health','religion','other'];
-  document.getElementById('modalBox').innerHTML = `
-    <h3>${existing ? t('edit') : t('add')}</h3>
-    <div class="form-grid">
-      <label>${t('title')}<input id="evTitle" value="${escapeHtml(ev.title)}" placeholder="Deep work"></label>
-      <div class="row">
-        <label style="flex:1">${t('date')}<input id="evDate" type="date" value="${escapeHtml(ev.date || todayISO())}"></label>
-        <label style="flex:1">${t('start')}<input id="evStart" type="time" value="${escapeHtml(ev.start)}"></label>
-        <label style="flex:1">${t('end')}<input id="evEnd" type="time" value="${escapeHtml(ev.end)}"></label>
+function renderMonth(el){
+  const y=monthCursor.getFullYear(), m=monthCursor.getMonth();
+  const first=new Date(y,m,1); const start=(first.getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  const cells=Array(start).fill(null).concat(Array.from({length:days},(_,i)=>i+1));
+  while(cells.length%7) cells.push(null);
+  el.innerHTML=`<div class="glass card">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <button class="ghost" onclick="monthCursor=new Date(${y},${m-1},1);showContent('home')">‹</button>
+      <h3>${first.toLocaleDateString(document.documentElement.lang,{month:'long',year:'numeric'})}</h3>
+      <button class="ghost" onclick="monthCursor=new Date(${y},${m+1},1);showContent('home')">›</button>
+    </div>
+    <div class="cal">${DAYS.map(d=>`<b>${d}</b>`).join('')}${cells.map(d=>{
+      if(!d) return '<div></div>';
+      const iso=`${y}-${pad(m+1)}-${pad(d)}`;
+      const n=eventsOn(iso).length;
+      return `<div class="daycell ${iso===selectedDay?'on':''}" onclick="selectedDay='${iso}';state.homeTab='today';openDay('${iso}')"><div>${d}</div>${n?`<div class="dots">${'<i></i>'.repeat(Math.min(n,4))}</div>`:''}</div>`;
+    }).join('')}</div>
+  </div>`;
+}
+function openDay(iso){ selectedDay=iso; state.homeTab='schedule'; save(); openEventModal({ date:iso, start:'09:00' }); }
+
+function renderHabits(el){
+  const days=Array.from({length:7},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)+i); return todayISO(d); });
+  el.innerHTML=`<div class="glass card">
+    <div class="row" style="margin-bottom:10px"><input id="habIn" placeholder="${t('habits')}" style="flex:1"><button class="btn" onclick="addHabit()">+</button></div>
+    ${state.habits.map(h=>`<div class="item" style="display:grid;grid-template-columns:1fr repeat(7,28px) 40px;gap:6px;align-items:center">
+      <strong>${esc(h.title)}</strong>
+      ${days.map(iso=>`<input type="checkbox" ${h.log[iso]?'checked':''} onchange="togHabit('${h.id}','${iso}',this.checked)" title="${iso}">`).join('')}
+      <button class="danger" onclick="delHabit('${h.id}')">×</button>
+    </div>`).join('')}
+  </div>`;
+}
+function addHabit(){ const title=(document.getElementById('habIn')?.value||'').trim(); if(!title)return; state.habits.push({id:uid(),title,log:{}}); save(); showContent('home'); }
+function togHabit(id,iso,v){ const h=state.habits.find(x=>x.id===id); if(h){ h.log[iso]=v; save(); } }
+function delHabit(id){ state.habits=state.habits.filter(h=>h.id!==id); save(); showContent('home'); }
+
+function openEventModal(opts={}){
+  const ex=opts.id? state.events.find(e=>e.id===opts.id):null;
+  const ev=ex||{ title:'', date:opts.date||todayISO(), start:opts.start||'09:00', end:opts.end||fromMin(minutes(opts.start||'09:00')+60), person:'', room:'', color:'#00fff6', category:'work', notes:'', repeat: opts.repeat!==false, dow: dow(opts.date||todayISO()) };
+  document.getElementById('modalBox').innerHTML=`
+    <h3>${ex?t('edit'):t('add')}</h3>
+    <div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px">
+      <label style="grid-column:1/-1">${t('title')}<input id="evTitle" value="${esc(ev.title)}" placeholder="${t('subject')}"></label>
+      <label>${t('day')}<select id="evDate">${allWeekEvents().map(w=>`<option value="${w.iso}" ${w.iso===(ev.date||opts.date)?'selected':''}>${DAYS[w.dow]} ${w.iso.slice(5)}</option>`).join('')}</select></label>
+      <label>${t('color')}<input id="evColor" type="color" value="${esc(ev.color||'#00fff6')}"></label>
+      <label>${t('start')}<input id="evStart" type="time" value="${esc(ev.start)}"></label>
+      <label>${t('end')}<input id="evEnd" type="time" value="${esc(ev.end)}"></label>
+      <label>${t('person')}<input id="evPerson" value="${esc(ev.person||'')}"></label>
+      <label>${t('room')}<input id="evRoom" value="${esc(ev.room||'')}"></label>
+      <label>${t('notesF')}<input id="evNotes" value="${esc(ev.notes||'')}"></label>
+      <label>${t('work')}
+        <select id="evCat">${['work','study','personal','health','religion','break','other'].map(c=>`<option value="${c}" ${ev.category===c?'selected':''}>${t(c==='religion'?'religionCat':c)}</option>`).join('')}</select>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;grid-column:1/-1"><input type="checkbox" id="evRep" ${ev.repeat?'checked':''}> ${t('repeat')}</label>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:12px">
+      <button class="ghost" onclick="closeModal()">${t('cancel')}</button>
+      ${ex?`<button class="danger" onclick="deleteEvent('${ev.id}')">${t('delete')}</button>`:''}
+      <button class="btn" onclick="saveEvent('${ex?ev.id:''}')">${t('save')}</button>
+    </div>`;
+  document.getElementById('modalRoot').classList.add('show');
+  setTimeout(()=>document.getElementById('evTitle')?.focus(), 50);
+}
+function closeModal(){ document.getElementById('modalRoot').classList.remove('show'); }
+function saveEvent(id){
+  const title=document.getElementById('evTitle').value.trim(); if(!title){ toast(t('title')); return; }
+  const date=document.getElementById('evDate').value;
+  const start=document.getElementById('evStart').value, end=document.getElementById('evEnd').value;
+  if (minutes(end)<=minutes(start)) { toast(t('end')); return; }
+  const rec={ title, date, start, end, person:evPerson.value, room:evRoom.value, color:evColor.value, category:evCat.value, notes:evNotes.value, repeat:evRep.checked, dow:dow(date), done:false };
+  if (id) Object.assign(state.events.find(e=>e.id===id), rec);
+  else state.events.push({ id:uid(), ...rec });
+  save(); beep(740,90); closeModal(); toast(t('saved')); showContent('home');
+}
+function deleteEvent(id){ state.events=state.events.filter(e=>e.id!==id); save(); closeModal(); showContent('home'); }
+
+function loadDemo(){
+  const palette=['#00fff6','#ff7ad9','#ffe14d','#7dffc3','#9ad8ff','#ffb36b'];
+  const blocks=[
+    [0,'Deep work','09:00','11:00','Office','Focus room',0],
+    [0,'Standup','11:00','11:30','Team','Meet',1],
+    [0,'Project','11:30','13:00','You','Lab',2],
+    [1,'Study block','09:00','12:00','Self','Library',3],
+    [1,'Gym','18:00','19:00','','Club',4],
+    [2,'Client calls','10:00','12:00','Amina','Zoom',5],
+    [2,'Prayer / rest','12:30','13:00','','',0],
+    [3,'Build time','09:00','13:00','','Desk',1],
+    [4,'Review week','09:00','11:00','','',2],
+    [4,'Family','19:00','21:00','','Home',3]
+  ];
+  const monday=allWeekEvents()[0].iso;
+  state.events = blocks.map((b,i)=>({
+    id: uid(), title:b[1], start:b[2], end:b[3], person:b[4], room:b[5],
+    color: palette[b[6]], category: i===6?'religion':'work', notes:'', repeat:true,
+    dow:b[0], date: todayISO(new Date(new Date(monday+'T00:00:00').getTime()+b[0]*86400000)), done:false
+  }));
+  state.tasks = [
+    { id:uid(), title:'Plan tomorrow top 3', priority:'high', due:todayISO(), done:false },
+    { id:uid(), title:'Send weekly report', priority:'med', due:todayISO(), done:false },
+    { id:uid(), title:'Read 20 pages', priority:'low', due:todayISO(), done:false }
+  ];
+  save(); toast(t('demo')); showContent('home');
+}
+
+function hijri(){
+  try { return new Intl.DateTimeFormat(state.profile.lang==='ar'?'ar':'en-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(new Date()); }
+  catch { return ''; }
+}
+function nextPrayer(){
+  const now=new Date().getHours()*60+new Date().getMinutes();
+  const order=['fajr','dhuhr','asr','maghrib','isha'];
+  for (const k of order) if (minutes(state.prayers[k])>now) return { k, t:state.prayers[k] };
+  return { k:'fajr', t:state.prayers.fajr, tomorrow:true };
+}
+function prayerStreak(){
+  let n=0; for (let i=0;i<30;i++){
+    const d=new Date(); d.setDate(d.getDate()-i); const iso=todayISO(d);
+    const log=state.prayerLog[iso]||{};
+    if (['fajr','dhuhr','asr','maghrib','isha'].every(k=>log[k])) n++; else if (i>0) break;
+  } return n;
+}
+function renderReligion(root){
+  const names={ fajr:'Fajr', dhuhr:'Dhuhr', asr:'Asr', maghrib:'Maghrib', isha:'Isha' };
+  const today=todayISO(); state.prayerLog[today]=state.prayerLog[today]||{};
+  const log=state.prayerLog[today];
+  const done=Object.keys(names).filter(k=>log[k]).length;
+  const np=nextPrayer();
+  root.innerHTML=`
+    <div class="hero"><div><h2 class="neon">${t('religion')}</h2><p class="muted">${hijri()} · ${t('streak')}: ${prayerStreak()}d</p></div></div>
+    <div class="grid2">
+      <div class="glass card nextbig">
+        <div class="muted">${t('nextPrayer')}</div>
+        <h3>${names[np.k]}${np.tomorrow?' +1':''}</h3>
+        <div class="t">${np.t}</div>
+        <p class="muted">${done}/5 ${t('done')}</p>
       </div>
-      <label>${t('category')}
-        <div class="chips" id="evCats">
-          ${cats.map(c => `<button type="button" class="chip ${ev.category===c?'active':''}" data-cat="${c}" onclick="selectCat(this)">${t(c==='religion'?'religionCat':c)}</button>`).join('')}
-        </div>
-      </label>
-      <label>${t('notes')}<textarea id="evNotes" rows="3">${escapeHtml(ev.notes||'')}</textarea></label>
-      <label style="display:flex;align-items:center;gap:8px;grid-auto-flow:column">
-        <input type="checkbox" id="evRec" ${ev.recurring?'checked':''}> ${t('recurring')}
-      </label>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">${t('cancel')}</button>
-        ${existing ? `<button class="danger" onclick="deleteEvent('${ev.id}')">${t('delete')}</button>` : ''}
-        <button class="primary" onclick="saveEvent('${existing?ev.id:''}')">${t('save')}</button>
+      <div class="glass card tasbih">
+        <h3>${t('tasbih')}</h3>
+        <button class="round" onclick="tasbihTap()">${state.tasbih%33|| (state.tasbih?33:0)}</button>
+        <p class="muted">${state.tasbih} · 33 / 99</p>
+        <button class="ghost" onclick="state.tasbih=0;save();showContent('religion')">${t('reset')}</button>
       </div>
     </div>
-  `;
-  document.getElementById('modalRoot').classList.add('show');
-}
-function selectCat(btn) {
-  document.querySelectorAll('#evCats .chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-}
-function closeModal() { document.getElementById('modalRoot').classList.remove('show'); }
-function saveEvent(id) {
-  const title = document.getElementById('evTitle').value.trim();
-  if (!title) { toast(t('title')); return; }
-  const date = document.getElementById('evDate').value;
-  const start = document.getElementById('evStart').value;
-  const end = document.getElementById('evEnd').value;
-  if (minutes(end) <= minutes(start)) { toast(t('end')); return; }
-  const category = document.querySelector('#evCats .chip.active')?.dataset.cat || 'other';
-  const notes = document.getElementById('evNotes').value;
-  const recurring = document.getElementById('evRec').checked;
-  const dow = (new Date(date+'T00:00:00').getDay() + 6) % 7;
-  if (id) {
-    const ev = state.events.find(e => e.id === id);
-    Object.assign(ev, { title, date, start, end, category, notes, recurring, dow });
-  } else {
-    state.events.push({ id: uid(), title, date, start, end, category, notes, recurring, dow, done: false });
-  }
-  save(); closeModal(); toast(t('saved')); showContent('home');
-}
-function deleteEvent(id) {
-  state.events = state.events.filter(e => e.id !== id);
-  save(); closeModal(); showContent('home');
-}
-
-function renderReligion(root) {
-  const names = { fajr:'Fajr', dhuhr:'Dhuhr', asr:'Asr', maghrib:'Maghrib', isha:'Isha' };
-  const today = todayISO();
-  state.prayerLog[today] = state.prayerLog[today] || {};
-  const log = state.prayerLog[today];
-  const done = Object.values(names).filter((_,i)=> log[Object.keys(names)[i]]).length;
-  root.innerHTML = `
-    <div class="greeting"><h2>${t('religion')}</h2><p>${t('prayers')} — ${done}/5 ${t('done')}</p></div>
-    <div class="progress-bar"><span style="width:${(done/5)*100}%"></span></div>
-    <div class="card" style="margin-bottom:16px">
-      ${Object.keys(names).map(k => `
+    <div class="glass card" style="margin-top:12px">
+      ${Object.keys(names).map(k=>`
         <div class="prayer">
           <input type="checkbox" ${log[k]?'checked':''} onchange="togglePrayer('${k}', this.checked)">
-          <div><strong>${names[k]}</strong></div>
-          <input type="time" value="${escapeHtml(state.prayers[k])}" onchange="setPrayerTime('${k}', this.value)">
+          <strong>${names[k]}</strong>
+          <span class="muted">${k===np.k?t('next'):''}</span>
+          <input type="time" value="${esc(state.prayers[k])}" onchange="state.prayers['${k}']=this.value;save()">
         </div>`).join('')}
     </div>
-    <div class="card">
-      <div class="week-bar"><h3>${t('customRel')}</h3><button class="primary" onclick="addCustomRel()">${t('addCustom')}</button></div>
-      ${(state.customReligion||[]).length ? state.customReligion.map(c => `
-        <div class="item">
-          <div class="dot" style="background:var(--gold)"></div>
-          <div style="flex:1">
-            <input value="${escapeHtml(c.title)}" onchange="updateCustomRel('${c.id}','title',this.value)" style="width:100%;margin-bottom:6px">
-            <input type="time" value="${escapeHtml(c.time)}" onchange="updateCustomRel('${c.id}','time',this.value)">
-          </div>
-          <button class="danger" onclick="delCustomRel('${c.id}')">${t('delete')}</button>
-        </div>`).join('') : `<div class="empty">${t('noEvents')}</div>`}
+    <div class="glass card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between"><h3>${t('customRel')}</h3><button class="btn" onclick="addCustomRel()">+</button></div>
+      ${(state.customReligion||[]).map(c=>`<div class="item">
+        <input value="${esc(c.title)}" onchange="updRel('${c.id}','title',this.value)" style="flex:1">
+        <input type="time" value="${esc(c.time)}" onchange="updRel('${c.id}','time',this.value)">
+        <button class="danger" onclick="delRel('${c.id}')">×</button>
+      </div>`).join('') || `<p class="empty">${t('customRel')}</p>`}
+    </div>`;
+}
+function tasbihTap(){ state.tasbih++; save(); beep(660,50); showContent('religion'); if (state.tasbih%33===0) beep(990,200); }
+function togglePrayer(k,v){ const d=todayISO(); state.prayerLog[d]=state.prayerLog[d]||{}; state.prayerLog[d][k]=v; save(); showContent('religion'); }
+function addCustomRel(){ state.customReligion.push({id:uid(), title:t('customRel'), time:'21:00'}); save(); showContent('religion'); }
+function updRel(id,f,v){ const c=state.customReligion.find(x=>x.id===id); if(c){ c[f]=v; save(); } }
+function delRel(id){ state.customReligion=state.customReligion.filter(x=>x.id!==id); save(); showContent('religion'); }
+
+function renderLanguage(root){
+  const langs=[['en','English','English'],['ar','العربية','Arabic'],['ur','اردو','Urdu']];
+  root.innerHTML=`<h2 class="neon">${t('chooseLang')}</h2>
+    <div class="lang-grid" style="margin-top:14px">${langs.map(l=>`
+      <div class="glass lang-card ${state.profile.lang===l[0]?'active':''}" onclick="setLang('${l[0]}')"><b style="font-size:26px">${l[1]}</b><div class="muted">${l[2]}</div></div>`).join('')}</div>`;
+}
+function setLang(id){ state.profile.lang=id; save(); applyChrome(); showContent('language'); }
+
+function renderClocks(root){
+  root.innerHTML=`<div class="tabs">${['stopwatch','timer','pomodoro','alarms'].map(k=>`<button class="tab ${clockTab===k?'active':''}" onclick="clockTab='${k}';showContent('stopwatch')">${t(k==='stopwatch'?'startSw':k)}</button>`).join('')}</div>
+    <div class="glass card sw" id="clockBody"></div>`;
+  const el=root.querySelector('#clockBody');
+  if (clockTab==='stopwatch') el.innerHTML=`
+    <div class="led" id="swTime">${fmtSw(sw.ms)}</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" onclick="toggleSw()">${sw.run?t('pause'):t('startSw')}</button>
+      <button class="ghost" onclick="lapSw()">${t('lap')}</button>
+      <button class="danger" onclick="resetSw()">${t('reset')}</button>
     </div>
-  `;
+    <div class="list" style="max-width:420px;margin:16px auto 0">${sw.laps.map((l,i)=>`<div class="item"><span>#${sw.laps.length-i}</span><b style="margin-inline-start:auto">${fmtSw(l)}</b></div>`).join('')}</div>`;
+  if (clockTab==='timer') el.innerHTML=`
+    <div class="led" id="tmTime">${fmtSec(timer.left)}</div>
+    <div class="row" style="justify-content:center">
+      <input id="tmMin" type="number" min="1" max="180" value="${Math.round(timer.total/60)}" style="width:90px"> ${t('minutes')}
+      <button class="btn" onclick="setTimer()">${t('setTimer')}</button>
+      <button class="btn" onclick="toggleTimer()">${timer.run?t('pause'):t('startSw')}</button>
+      <button class="danger" onclick="resetTimer()">${t('reset')}</button>
+    </div>`;
+  if (clockTab==='pomodoro') el.innerHTML=`
+    <p class="muted">${t(pomo.phase==='focus'?'focus':'shortBr')} · ${pomo.cycles}x</p>
+    <div class="led" id="pmTime">${fmtSec(pomo.left)}</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" onclick="togglePomo()">${pomo.run?t('pause'):t('startSw')}</button>
+      <button class="danger" onclick="resetPomo()">${t('reset')}</button>
+    </div>`;
+  if (clockTab==='alarms') el.innerHTML=`
+    <div class="row" style="justify-content:center;margin-bottom:12px">
+      <input id="alTime" type="time" value="06:30"><input id="alLab" placeholder="${t('title')}" style="min-width:140px">
+      <button class="btn" onclick="addAlarm()">${t('addAlarm')}</button>
+    </div>
+    <div class="list">${state.alarms.map(a=>`<div class="item">
+      <input type="checkbox" ${a.on?'checked':''} onchange="aOn('${a.id}', this.checked)">
+      <b>${a.time}</b> <span>${esc(a.label)}</span>
+      <button class="danger" style="margin-inline-start:auto" onclick="delAlarm('${a.id}')">×</button>
+    </div>`).join('') || `<p class="empty">${t('alarms')}</p>`}</div>`;
 }
-function togglePrayer(k, val) {
-  const today = todayISO();
-  state.prayerLog[today] = state.prayerLog[today] || {};
-  state.prayerLog[today][k] = val;
-  save(); showContent('religion');
+function fmtSw(ms){ const cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000)%60,h=Math.floor(ms/3600000); return `${pad(h)}:${pad(m)}:${pad(s)}.${pad(cs)}`; }
+function fmtSec(s){ s=Math.max(0,s|0); return `${pad(Math.floor(s/60))}:${pad(s%60)}`; }
+function toggleSw(){ if(sw.run){ sw.run=false; sw.ms=Date.now()-sw.t0; clearInterval(sw.int);} else { sw.run=true; sw.t0=Date.now()-sw.ms; sw.int=setInterval(()=>{ sw.ms=Date.now()-sw.t0; const e=document.getElementById('swTime'); if(e) e.textContent=fmtSw(sw.ms); },30);} if(page==='stopwatch'&&clockTab==='stopwatch') showContent('stopwatch'); }
+function lapSw(){ if(sw.ms){ sw.laps.unshift(sw.ms); showContent('stopwatch'); } }
+function resetSw(){ sw={ ms:0, run:false, t0:0, laps:[], int:null }; showContent('stopwatch'); }
+function setTimer(){ const m=Number(document.getElementById('tmMin').value||25); timer.total=m*60; timer.left=m*60; showContent('stopwatch'); }
+function toggleTimer(){
+  if (timer.run){ timer.run=false; clearInterval(timer.int); }
+  else { timer.run=true; timer.int=setInterval(()=>{ timer.left--; const e=document.getElementById('tmTime'); if(e) e.textContent=fmtSec(timer.left); if(timer.left<=0){ timer.run=false; clearInterval(timer.int); beep(440,400); beep(880,400); toast(t('timer')); } },1000); }
+  if (page==='stopwatch') showContent('stopwatch');
 }
-function setPrayerTime(k, val) { state.prayers[k] = val; save(); }
-function addCustomRel() {
-  state.customReligion.push({ id: uid(), title: t('customRel'), time: '20:30' });
-  save(); showContent('religion');
+function resetTimer(){ timer.run=false; clearInterval(timer.int); timer.left=timer.total; showContent('stopwatch'); }
+function togglePomo(){
+  if (pomo.run){ pomo.run=false; clearInterval(pomo.int); }
+  else { pomo.run=true; pomo.int=setInterval(()=>{
+    pomo.left--; const e=document.getElementById('pmTime'); if(e) e.textContent=fmtSec(pomo.left);
+    if (pomo.left<=0){
+      beep(520,300); beep(880,300);
+      if (pomo.phase==='focus'){ pomo.phase='break'; pomo.left=5*60; pomo.cycles++; toast(t('shortBr')); }
+      else { pomo.phase='focus'; pomo.left=25*60; toast(t('focus')); }
+    }
+  },1000); }
+  if (page==='stopwatch') showContent('stopwatch');
 }
-function updateCustomRel(id, field, val) {
-  const c = state.customReligion.find(x => x.id === id);
-  if (c) { c[field] = val; save(); }
+function resetPomo(){ pomo={ left:25*60, run:false, int:null, phase:'focus', cycles:0 }; showContent('stopwatch'); }
+function addAlarm(){ const time=document.getElementById('alTime').value; const label=document.getElementById('alLab').value||'Alarm'; state.alarms.push({id:uid(), time, label, on:true, last:''}); save(); showContent('stopwatch'); }
+function aOn(id,v){ const a=state.alarms.find(x=>x.id===id); if(a){ a.on=v; save(); } }
+function delAlarm(id){ state.alarms=state.alarms.filter(a=>a.id!==id); save(); showContent('stopwatch'); }
+
+function renderCalc(root){
+  const keys=[['C','±','%','÷'],['7','8','9','×'],['4','5','6','−'],['1','2','3','+'],['0','.','=']];
+  root.innerHTML=`<div class="calc glass card">
+    <div class="calc-disp" id="calcDisplay">${esc(calc.display)}</div>
+    <div class="calc-grid">${keys.flat().map(k=>{
+      const cls=k==='0'?'zero':k==='='?'eq':'÷×−+%±C'.includes(k)?'op':'';
+      return `<button class="${cls}" onclick="calcPress('${k}')">${k}</button>`;
+    }).join('')}</div>
+    <div class="hist muted" style="margin-top:10px"><b>${t('history')}</b><br>${(state.calcHistory||[]).slice(0,8).map(x=>esc(x)).join('<br>')||'—'}</div>
+  </div>`;
 }
-function delCustomRel(id) {
-  state.customReligion = state.customReligion.filter(x => x.id !== id);
-  save(); showContent('religion');
+function calcPress(k){
+  const ops={'÷':'/','×':'*','−':'-','+':'+'};
+  if(k==='C') calc={display:'0',acc:null,op:null,fresh:false};
+  else if(k==='±') calc.display=String(-(parseFloat(calc.display)||0));
+  else if(k==='%') calc.display=String((parseFloat(calc.display)||0)/100);
+  else if(k==='.') { if(!calc.display.includes('.')) calc.display+='.'; }
+  else if(ops[k]){ compute(); calc.op=ops[k]; calc.acc=parseFloat(calc.display); calc.fresh=true; }
+  else if(k==='='){ const a=calc.acc, op=calc.op, b=calc.display; compute(); if(op!=null){ state.calcHistory.unshift(`${a} ${op} ${b} = ${calc.display}`); state.calcHistory=state.calcHistory.slice(0,20); save(); } calc.op=null; calc.acc=null; calc.fresh=true; }
+  else { if(calc.display==='0'||calc.fresh){ calc.display=k; calc.fresh=false; } else calc.display+=k; }
+  const el=document.getElementById('calcDisplay'); if(el) el.textContent=calc.display;
+}
+function compute(){
+  if(calc.acc==null||!calc.op) return;
+  const b=parseFloat(calc.display); let r=calc.acc;
+  if(calc.op==='+') r+=b; if(calc.op==='-') r-=b; if(calc.op==='*') r*=b; if(calc.op==='/') r=b===0?'Error':r/b;
+  calc.display=String(r==='Error'?r:Math.round((Number(r)+Number.EPSILON)*1e10)/1e10);
 }
 
-function renderLanguage(root) {
-  const langs = [
-    { id:'en', name:'English', native:'English' },
-    { id:'ar', name:'Arabic', native:'العربية' },
-    { id:'ur', name:'Urdu', native:'اردو' }
-  ];
-  root.innerHTML = `
-    <div class="greeting"><h2>${t('language')}</h2><p>${t('chooseLang')}</p></div>
-    <div class="lang-grid">
-      ${langs.map(l => `
-        <div class="card lang-card ${state.profile.lang===l.id?'active':''}" onclick="setLang('${l.id}')">
-          <b>${l.native}</b>
-          <span style="color:var(--muted)">${l.name}</span>
-        </div>`).join('')}
-    </div>
-  `;
-}
-function setLang(id) {
-  state.profile.lang = id;
-  save(); applyChrome(); showContent('language');
-}
-
-function renderStopwatch(root) {
-  root.innerHTML = `
-    <div class="card stopwatch">
-      <h2>${t('stopwatch')}</h2>
-      <div class="sw-time" id="swTime">${fmtSw(sw.ms)}</div>
-      <div class="row" style="justify-content:center">
-        <button class="primary" id="swToggle" onclick="toggleSw()">${sw.running ? t('pause') : t('startSw')}</button>
-        <button class="ghost" onclick="lapSw()">${t('lap')}</button>
-        <button class="danger" onclick="resetSw()">${t('reset')}</button>
+function renderProfile(root){
+  const themes=[['cyber','Cyber','#00fff6','#2457ff'],['magenta','Magenta','#ff4ad8','#00e5ff'],['matrix','Matrix','#39ff14','#00ffd0'],['gold','Gold','#ffd000','#ff7a00'],['ice','Ice','#9be7ff','#6d7bff']];
+  const weekN=allWeekEvents().reduce((n,w)=>n+w.list.length,0);
+  root.innerHTML=`<h2 class="neon">${t('profile')}</h2>
+    <div class="grid2" style="margin-top:12px">
+      <div class="glass card" style="display:grid;gap:10px">
+        <label>${t('name')}<input id="pfName" value="${esc(state.profile.name)}"></label>
+        <div class="row">
+          <label>${t('hours')} start<input id="pfS" type="number" min="0" max="12" value="${state.profile.hourStart}"></label>
+          <label>end<input id="pfE" type="number" min="13" max="23" value="${state.profile.hourEnd}"></label>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pfN" ${state.profile.notif?'checked':''}> ${t('notif')}</label>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pfSo" ${state.profile.sound?'checked':''}> ${t('sound')}</label>
+        <label>${t('pin')}<input id="pfPin" type="password" inputmode="numeric" maxlength="6" value="${esc(state.profile.pin)}"></label>
+        <div class="row">
+          <button class="btn" onclick="saveProfile()">${t('save')}</button>
+          <button class="ghost" onclick="exportTimetable()">${t('export')}</button>
+          <button class="ghost" onclick="exportCSV()">${t('csv')}</button>
+          <button class="danger" onclick="clearAll()">${t('clear')}</button>
+        </div>
       </div>
-      <div class="laps" id="swLaps">${renderLaps()}</div>
-    </div>
-  `;
-}
-function fmtSw(ms) {
-  const cs = Math.floor(ms / 10) % 100;
-  const s = Math.floor(ms / 1000) % 60;
-  const m = Math.floor(ms / 60000) % 60;
-  const h = Math.floor(ms / 3600000);
-  return `${pad(h)}:${pad(m)}:${pad(s)}.${pad(cs)}`;
-}
-function renderLaps() {
-  if (!sw.laps.length) return '';
-  return `<h3 style="margin-bottom:8px">${t('laps')}</h3>` + sw.laps.map((l,i)=>`<div class="item"><span>#${i+1}</span><strong style="margin-inline-start:auto">${fmtSw(l)}</strong></div>`).join('');
-}
-function tickSw() {
-  if (!sw.running) return;
-  sw.ms = Date.now() - sw.started;
-  const el = document.getElementById('swTime');
-  if (el) el.textContent = fmtSw(sw.ms);
-}
-function toggleSw() {
-  if (sw.running) {
-    sw.running = false;
-    sw.ms = Date.now() - sw.started;
-    clearInterval(sw.timer);
-  } else {
-    sw.running = true;
-    sw.started = Date.now() - sw.ms;
-    sw.timer = setInterval(tickSw, 30);
-  }
-  if (currentPage === 'stopwatch') showContent('stopwatch');
-}
-function lapSw() { if (sw.ms) { sw.laps.unshift(sw.ms); if (currentPage==='stopwatch') showContent('stopwatch'); } }
-function resetSw() {
-  sw.running = false; sw.ms = 0; sw.laps = []; clearInterval(sw.timer);
-  if (currentPage === 'stopwatch') showContent('stopwatch');
-}
-
-function renderCalculator(root) {
-  const keys = [
-    ['C','±','%','÷'],
-    ['7','8','9','×'],
-    ['4','5','6','−'],
-    ['1','2','3','+'],
-    ['0','.','=']
-  ];
-  root.innerHTML = `
-    <div class="card calc">
-      <h2 style="margin-bottom:10px">${t('calculator')}</h2>
-      <div class="calc-display" id="calcDisplay">${escapeHtml(calc.display)}</div>
-      <div class="calc-grid">
-        ${keys.flat().map(k => {
-          const cls = k==='0' ? 'zero' : k==='=' ? 'eq' : '÷×−+%±C'.includes(k) ? 'op' : '';
-          return `<button class="${cls}" onclick="calcPress('${k}')">${k}</button>`;
-        }).join('')}
+      <div>
+        <div class="glass card">
+          <h3>${t('theme')}</h3>
+          <div class="grid3" style="margin-top:8px">${themes.map(th=>`<div>
+            <div class="theme-dot" style="background:linear-gradient(90deg,${th[2]},${th[3]})" onclick="setTheme('${th[0]}')"></div>
+            <small>${th[1]}</small>
+          </div>`).join('')}</div>
+        </div>
+        <div class="glass card stat" style="margin-top:12px">
+          <h3>${t('stats')}</h3>
+          <b>${weekN}</b><span>${t('week')} blocks</span>
+          <b style="margin-top:8px">${state.tasks.filter(x=>x.done).length}/${state.tasks.length||0}</b><span>${t('tasks')}</span>
+          <b style="margin-top:8px">${prayerStreak()}</b><span>${t('streak')}</span>
+        </div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
-function calcPress(k) {
-  const ops = { '÷':'/', '×':'*', '−':'-', '+':'+' };
-  if (k === 'C') { calc = { display:'0', acc:null, op:null, fresh:false }; }
-  else if (k === '±') { calc.display = String(-(parseFloat(calc.display)||0)); }
-  else if (k === '%') { calc.display = String((parseFloat(calc.display)||0)/100); }
-  else if (k === '.') { if (!calc.display.includes('.')) calc.display += '.'; }
-  else if (ops[k]) {
-    compute();
-    calc.op = ops[k];
-    calc.acc = parseFloat(calc.display);
-    calc.fresh = true;
-  } else if (k === '=') { compute(); calc.op = null; calc.acc = null; calc.fresh = true; }
-  else {
-    if (calc.display === '0' || calc.fresh) { calc.display = k; calc.fresh = false; }
-    else calc.display += k;
-  }
-  const el = document.getElementById('calcDisplay');
-  if (el) el.textContent = calc.display;
+function setTheme(id){ state.profile.theme=id; save(); applyChrome(); showContent('profile'); }
+function saveProfile(){
+  state.profile.name=pfName.value.trim();
+  state.profile.hourStart=Number(pfS.value||7);
+  state.profile.hourEnd=Number(pfE.value||21);
+  state.profile.notif=pfN.checked; state.profile.sound=pfSo.checked;
+  state.profile.pin=pfPin.value.replace(/\D/g,'').slice(0,6);
+  if (state.profile.notif && 'Notification' in window && Notification.permission==='default') Notification.requestPermission();
+  save(); applyChrome(); toast(t('saved')); beep(700,80);
 }
-function compute() {
-  if (calc.acc == null || !calc.op) return;
-  const b = parseFloat(calc.display);
-  let r = calc.acc;
-  if (calc.op === '+') r += b;
-  if (calc.op === '-') r -= b;
-  if (calc.op === '*') r *= b;
-  if (calc.op === '/') r = b === 0 ? 'Error' : r / b;
-  calc.display = String(Math.round((Number(r)+Number.EPSILON)*1e10)/1e10);
-}
+function clearAll(){ if(!confirm(t('clear')+'?')) return; state=defaultState(); save(); showContent('profile'); }
 
-function renderProfile(root) {
-  root.innerHTML = `
-    <div class="greeting"><h2>${t('profile')}</h2><p>${t('tagline')}</p></div>
-    <div class="card form-grid">
-      <label>${t('name')}<input id="pfName" value="${escapeHtml(state.profile.name)}"></label>
-      <div class="row">
-        <label style="flex:1">${t('start')}<input id="pfStart" type="time" value="${escapeHtml(state.profile.workStart)}"></label>
-        <label style="flex:1">${t('end')}<input id="pfEnd" type="time" value="${escapeHtml(state.profile.workEnd)}"></label>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="pfNotif" ${state.profile.notif?'checked':''}> ${t('notif')}
-      </label>
-      <div class="row">
-        <button class="primary" onclick="saveProfile()">${t('save')}</button>
-        <button class="ghost" onclick="exportTimetable()">${t('export')}</button>
-        <button class="ghost" onclick="importTimetable()">${t('import')}</button>
-        <button class="danger" onclick="clearAll()">${t('clear')}</button>
-      </div>
-    </div>
-  `;
+function exportTimetable(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
+  a.download=`workm-${todayISO()}.json`; a.click(); URL.revokeObjectURL(a.href); toast(t('exported'));
 }
-function saveProfile() {
-  state.profile.name = document.getElementById('pfName').value.trim() || 'Planner';
-  state.profile.workStart = document.getElementById('pfStart').value;
-  state.profile.workEnd = document.getElementById('pfEnd').value;
-  state.profile.notif = document.getElementById('pfNotif').checked;
-  if (state.profile.notif && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-  save(); applyChrome(); toast(t('saved'));
+function exportCSV(){
+  const rows=[['title','day','date','start','end','person','room','repeat','category']].concat(
+    state.events.map(e=>[e.title, DAYS[e.dow]||'', e.date, e.start, e.end, e.person||'', e.room||'', e.repeat, e.category||''])
+  );
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`workm-${todayISO()}.csv`; a.click(); toast(t('csvOk'));
 }
-function clearAll() {
-  if (!confirm(t('clear') + '?')) return;
-  state = defaultState();
-  save(); applyChrome(); showContent('profile');
-}
-
-function exportTimetable() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `workm-timetable-${todayISO()}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast(t('exported'));
-}
-function importTimetable() { document.getElementById('importFile').click(); }
-document.getElementById('importFile').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
+function importTimetable(){ document.getElementById('importFile').click(); }
+document.getElementById('importFile').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
   try {
-    const data = JSON.parse(await file.text());
-    if (!data || typeof data !== 'object') throw new Error('bad');
-    state = { ...defaultState(), ...data, profile: { ...defaultState().profile, ...(data.profile||{}) } };
-    if (!Array.isArray(state.events)) state.events = [];
-    save(); applyChrome(); showContent(currentPage); toast(t('imported'));
+    const data=JSON.parse(await f.text());
+    state={ ...defaultState(), ...data, profile:{ ...defaultState().profile, ...(data.profile||{}) } };
+    save(); applyChrome(); showContent(page); toast(t('imported'));
   } catch { toast(t('invalid')); }
-});
+};
 
-function tickClock() {
-  const n = new Date();
-  document.getElementById('liveClock').textContent = n.toLocaleTimeString(document.documentElement.lang, { hour12:false });
+function runSearch(q){
+  q=q.trim().toLowerCase(); if(!q) return;
+  const hits=[
+    ...state.events.filter(e=>`${e.title} ${e.person} ${e.room}`.toLowerCase().includes(q)).map(e=>({k:'event', t:e.title, id:e.id})),
+    ...state.tasks.filter(e=>e.title.toLowerCase().includes(q)).map(e=>({k:'task', t:e.title})),
+    ...state.notes.filter(e=>(e.text||'').toLowerCase().includes(q)).map(e=>({k:'note', t:e.text.slice(0,40)}))
+  ].slice(0,8);
+  if (!hits.length) { toast('0'); return; }
+  document.getElementById('modalBox').innerHTML=`<h3>${t('search')}</h3>${hits.map(h=>`<div class="item" onclick="${h.k==='event'?`openEventModal({id:'${h.id}'})`:`closeModal();state.homeTab='${h.k==='task'?'tasks':'notes'}';showContent('home')`}"><b>${esc(h.k)}</b> ${esc(h.t)}</div>`).join('')}`;
+  document.getElementById('modalRoot').classList.add('show');
 }
-setInterval(tickClock, 1000);
-tickClock();
 
-const notified = new Set();
-setInterval(() => {
-  if (!state.profile.notif || !('Notification' in window) || Notification.permission !== 'granted') return;
-  const now = new Date();
-  const iso = todayISO(now);
-  const soon = minutes(`${pad(now.getHours())}:${pad(now.getMinutes())}`) + 5;
-  eventsForDate(iso).forEach(ev => {
-    if (minutes(ev.start) === soon && !notified.has(iso+ev.id)) {
-      notified.add(iso+ev.id);
-      new Notification('Workm Planner', { body: `${ev.title} • ${ev.start}` });
+function unlock(){
+  const v=document.getElementById('pinIn').value;
+  if (v===state.profile.pin){ document.getElementById('lockScreen').classList.remove('show'); toast(t('unlocked')); }
+  else beep(180,200);
+}
+
+function tickClock(){
+  const n=new Date();
+  document.getElementById('liveClock').textContent=n.toLocaleTimeString(document.documentElement.lang, { hour12: !state.profile.fmt24 });
+  const hm=`${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  const iso=todayISO(n);
+  state.alarms.forEach(a=>{
+    if (a.on && a.time===hm && a.last!==iso){ a.last=iso; save(); beep(880,250); beep(660,250); toast(a.label||t('alarms'));
+      if ('Notification' in window && Notification.permission==='granted') new Notification('Workm', { body: a.label||a.time });
     }
   });
-}, 30000);
+  if (state.profile.notif && 'Notification' in window && Notification.permission==='granted'){
+    const soon=n.getHours()*60+n.getMinutes()+5;
+    eventsOn(iso).forEach(ev=>{
+      if (minutes(ev.start)===soon){
+        const k='n'+iso+ev.id; if (!tickClock._n) tickClock._n=new Set();
+        if (!tickClock._n.has(k)){ tickClock._n.add(k); new Notification(ev.title, { body: ev.start }); beep(920,180); }
+      }
+    });
+  }
+}
+setInterval(tickClock, 1000); tickClock();
+
+(function particles(){
+  const c=document.getElementById('fx'), x=c.getContext('2d');
+  let w,h, ps;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; ps=Array.from({length:40},()=>({x:Math.random()*w,y:Math.random()*h,v:0.3+Math.random()*0.8,r:1+Math.random()*2})); }
+  addEventListener('resize', resize); resize();
+  (function loop(){
+    x.clearRect(0,0,w,h); x.fillStyle='rgba(255,255,255,.55)';
+    ps.forEach(p=>{ p.y-=p.v; if(p.y<0){ p.y=h; p.x=Math.random()*w; } x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+if (state.profile.pin) document.getElementById('lockScreen').classList.add('show');
+if (!state.profile.name) {
+  setTimeout(()=>{
+    document.getElementById('modalBox').innerHTML=`<h3 class="neon">WORKM PLANNER</h3>
+      <p class="muted" style="margin:8px 0 12px">${t('quote')}</p>
+      <label>${t('name')}<input id="welcomeName" placeholder="Your name"></label>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" onclick="state.profile.name=(welcomeName.value||'Planner');save();closeModal();showContent('home')">${t('save')}</button>
+        <button class="ghost" onclick="state.profile.name=(welcomeName.value||'Planner');closeModal();loadDemo()">${t('demo')}</button>
+      </div>`;
+    document.getElementById('modalRoot').classList.add('show');
+  }, 200);
+}
 
 applyChrome();
 showContent('home');

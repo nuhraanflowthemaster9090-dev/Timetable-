@@ -151,8 +151,11 @@ label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
   box-shadow: 0 0 18px rgba(255,255,255,.25);
 }
 .block small { display: block; font-weight: 600; opacity: .85; }
-.nowline { position: absolute; left: 64px; right: 0; height: 2px; background: #fff; box-shadow: 0 0 12px #fff; z-index: 2; pointer-events: none; }
-.nowline::before { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; top: -4px; left: -4px; }
+.tracks-inner { display: contents; }
+.nowline { position: absolute; inset-inline-start: 64px; inset-inline-end: 0; height: 2px; background: #fff; box-shadow: 0 0 12px #fff; z-index: 2; pointer-events: none; grid-column: 1 / -1; }
+.nowline::before { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; top: -4px; inset-inline-start: -4px; }
+.block.dark-text { color: #041018; }
+.block.light-text { color: #f7ffff; }
 
 .list .item {
   display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px;
@@ -244,7 +247,7 @@ label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
       <small id="tagline">Neon Ultimate Pro</small>
     </div>
     <div class="grow">
-      <input class="search" id="searchBox" placeholder="Search schedule, tasks, notes..." oninput="runSearch(this.value)">
+      <input class="search" id="searchBox" placeholder="Search schedule, tasks, notes..." onkeydown="if(event.key==='Enter') runSearch(this.value)">
       <div class="clock" id="liveClock">00:00:00</div>
       <div class="avatar" id="avatarBtn" onclick="showContent('profile')">W</div>
     </div>
@@ -267,10 +270,10 @@ label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
     <main id="main"><div id="pageContent"></div></main>
   </div>
   <nav id="bottomNav">
-    <button data-page="home" onclick="showContent('home')">Home</button>
-    <button data-page="stopwatch" onclick="showContent('stopwatch')">Focus</button>
-    <button data-page="calculator" onclick="showContent('calculator')">Calc</button>
-    <button data-page="profile" onclick="showContent('profile')">Me</button>
+    <button data-page="home" onclick="showContent('home')"><span data-i18n="home">Home</span></button>
+    <button data-page="stopwatch" onclick="showContent('stopwatch')"><span data-i18n="clocks">Focus</span></button>
+    <button data-page="calculator" onclick="showContent('calculator')"><span data-i18n="calculator">Calc</span></button>
+    <button data-page="profile" onclick="showContent('profile')"><span data-i18n="profile">Me</span></button>
   </nav>
 </div>
 <button class="fab no-print" id="fab" onclick="quickAdd()">+</button>
@@ -280,7 +283,7 @@ label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
   <div class="glass card" style="width:min(360px,92vw);text-align:center">
     <h2 class="neon">WORKM</h2>
     <p class="muted" style="margin:8px 0 12px">Enter PIN</p>
-    <input id="pinIn" type="password" inputmode="numeric" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px">
+    <input id="pinIn" type="password" inputmode="numeric" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px" onkeydown="if(event.key==='Enter')unlock()">
     <button class="btn" style="width:100%;margin-top:12px" onclick="unlock()">Unlock</button>
   </div>
 </div>
@@ -310,7 +313,8 @@ const I18N = {
     habits:'Habits', quote:'Stay on the block. Finish what you started.', streak:'Prayer streak',
     csvOk:'CSV downloaded', pinOn:'PIN saved', unlocked:'Welcome back', addAlarm:'Add alarm',
     minutes:'Minutes', edit:'Edit block', remaining:'Left today', completed:'Completed',
-    stats:'This week', clearLaps:'Clear laps', setTimer:'Set', subject:'Subject / block'
+    stats:'This week', clearLaps:'Clear laps', setTimer:'Set', subject:'Subject / block',
+    stopwatch:'Stopwatch', noResults:'No matches'
   }
 };
 I18N.ar = Object.assign({}, I18N.en, {
@@ -367,9 +371,18 @@ function esc(s) { return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<
 function uid() { return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3); }
 function pad(n,z=2){ return String(n).padStart(z,'0'); }
 function todayISO(d=new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-function minutes(tt){ const [h,m]=(tt||'00:00').split(':').map(Number); return h*60+m; }
+function minutes(tt){ const p=String(tt||'00:00').split(':'); return (Number(p[0])||0)*60+(Number(p[1])||0); }
 function fromMin(m){ m=((m%1440)+1440)%1440; return `${pad(Math.floor(m/60))}:${pad(m%60)}`; }
-function dow(iso){ return (new Date(iso+'T00:00:00').getDay()+6)%7; }
+function hhmm(tt){ return fromMin(minutes(tt)); }
+function dow(iso){ const d=new Date(iso+'T00:00:00'); return Number.isNaN(d.getTime())?0:(d.getDay()+6)%7; }
+function contrast(bg){
+  const h=String(bg||'#00fff6').replace('#','');
+  const hex=h.length===3?h.split('').map(c=>c+c).join(''):h.slice(0,6);
+  const n=parseInt(hex,16); if(Number.isNaN(n)) return 'dark-text';
+  const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return (r*299+g*587+b*114)/1000>148?'dark-text':'light-text';
+}
+function val(id){ return document.getElementById(id); }
 function beep(freq=880, ms=180) {
   if (!state.profile.sound) return;
   try {
@@ -382,7 +395,12 @@ function beep(freq=880, ms=180) {
 }
 function toast(msg){ const el=document.createElement('div'); el.className='toast'; el.textContent=msg; document.getElementById('toasts').appendChild(el); setTimeout(()=>el.remove(),2500); }
 function period(){ const h=new Date().getHours(); return h<12?t('morning'):h<17?t('afternoon'):t('evening'); }
-function hourCfg(){ const s=Number(state.profile.hourStart||7), e=Number(state.profile.hourEnd||21); return { start:s, hours:Math.max(8, e-s) }; }
+function hourCfg(){
+  let s=Number(state.profile.hourStart); if(!Number.isFinite(s)) s=7;
+  let e=Number(state.profile.hourEnd); if(!Number.isFinite(e)) e=21;
+  s=Math.min(18, Math.max(0, s)); e=Math.min(24, Math.max(s+1, e));
+  return { start:s, hours:e-s };
+}
 
 function applyChrome(){
   const lang=state.profile.lang||'en';
@@ -414,7 +432,11 @@ function quickAdd(){
   if (page==='religion') addCustomRel();
   else if (state.homeTab==='tasks') addTask();
   else if (state.homeTab==='notes') addNote();
-  else openEventModal({ date: todayISO(), start: fromMin(Math.floor(new Date().getHours()*60/30)*30) });
+  else {
+    const now=new Date();
+    const start=fromMin(Math.floor((now.getHours()*60+now.getMinutes())/30)*30);
+    openEventModal({ date: todayISO(), start, repeat:true });
+  }
 }
 
 function eventsOn(iso){
@@ -483,9 +505,12 @@ function renderSchedule(el){
           <div class="track">
             ${Array.from({length:hours},(_,h)=>`<div class="slot" onclick="openEventModal({date:'${w.iso}',start:'${pad(start+h)}:00',repeat:true})"></div>`).join('')}
             ${w.list.map(ev=>{
-              const top=((minutes(ev.start)-start*60)/60)*60;
-              const h=Math.max(26, ((minutes(ev.end)-minutes(ev.start))/60)*60);
-              return `<div class="block" style="top:${top}px;height:${h}px;background:${esc(ev.color||'#00fff6')}" onclick="event.stopPropagation();openEventModal({id:'${ev.id}'})"><strong>${esc(ev.title)}</strong><small>${esc(ev.start)}–${esc(ev.end)}${ev.room?' · '+esc(ev.room):''}</small></div>`;
+              const top=Math.max(0, ((minutes(ev.start)-start*60)/60)*60);
+              const rawH=((minutes(ev.end)-minutes(ev.start))/60)*60;
+              const h=Math.max(26, Math.min(rawH, hours*60-top));
+              if (minutes(ev.end)<=start*60 || minutes(ev.start)>=(start+hours)*60) return '';
+              const col=ev.color||'#00fff6';
+              return `<div class="block ${contrast(col)}" style="top:${top}px;height:${h}px;background:${esc(col)}" onclick="event.stopPropagation();openEventModal({id:'${ev.id}'})"><strong>${esc(ev.title)}</strong><small>${esc(ev.start)}–${esc(ev.end)}${ev.room?' · '+esc(ev.room):''}</small></div>`;
             }).join('')}
           </div>`).join('')}
         ${nowTop>=0 && nowTop<=hours*60 ? `<div class="nowline" style="top:${nowTop}px"></div>`:''}
@@ -589,11 +614,23 @@ function renderMonth(el){
       if(!d) return '<div></div>';
       const iso=`${y}-${pad(m+1)}-${pad(d)}`;
       const n=eventsOn(iso).length;
-      return `<div class="daycell ${iso===selectedDay?'on':''}" onclick="selectedDay='${iso}';state.homeTab='today';openDay('${iso}')"><div>${d}</div>${n?`<div class="dots">${'<i></i>'.repeat(Math.min(n,4))}</div>`:''}</div>`;
+      return `<div class="daycell ${iso===selectedDay?'on':''}" onclick="openDay('${iso}')"><div>${d}</div>${n?`<div class="dots">${'<i></i>'.repeat(Math.min(n,4))}</div>`:''}</div>`;
     }).join('')}</div>
   </div>`;
 }
-function openDay(iso){ selectedDay=iso; state.homeTab='schedule'; save(); openEventModal({ date:iso, start:'09:00' }); }
+function openDay(iso){
+  selectedDay=iso;
+  state.homeTab='today';
+  save();
+  const list=eventsOn(iso);
+  document.getElementById('modalBox').innerHTML=`<h3>${iso}</h3>
+    ${list.length? list.map(ev=>`<div class="item" onclick="openEventModal({id:'${ev.id}'})"><b>${esc(ev.start)}</b> ${esc(ev.title)}</div>`).join('') : `<p class="empty">${t('noEvents')}</p>`}
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn" onclick="openEventModal({date:'${iso}',start:'09:00',repeat:false})">${t('add')}</button>
+    </div>`;
+  document.getElementById('modalRoot').classList.add('show');
+}
 
 function renderHabits(el){
   const days=Array.from({length:7},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)+i); return todayISO(d); });
@@ -601,18 +638,19 @@ function renderHabits(el){
     <div class="row" style="margin-bottom:10px"><input id="habIn" placeholder="${t('habits')}" style="flex:1"><button class="btn" onclick="addHabit()">+</button></div>
     ${state.habits.map(h=>`<div class="item" style="display:grid;grid-template-columns:1fr repeat(7,28px) 40px;gap:6px;align-items:center">
       <strong>${esc(h.title)}</strong>
-      ${days.map(iso=>`<input type="checkbox" ${h.log[iso]?'checked':''} onchange="togHabit('${h.id}','${iso}',this.checked)" title="${iso}">`).join('')}
+      ${days.map(iso=>`<input type="checkbox" ${(h.log&&h.log[iso])?'checked':''} onchange="togHabit('${h.id}','${iso}',this.checked)" title="${iso}">`).join('')}
       <button class="danger" onclick="delHabit('${h.id}')">×</button>
     </div>`).join('')}
   </div>`;
 }
 function addHabit(){ const title=(document.getElementById('habIn')?.value||'').trim(); if(!title)return; state.habits.push({id:uid(),title,log:{}}); save(); showContent('home'); }
-function togHabit(id,iso,v){ const h=state.habits.find(x=>x.id===id); if(h){ h.log[iso]=v; save(); } }
+function togHabit(id,iso,v){ const h=state.habits.find(x=>x.id===id); if(!h) return; if(!h.log||typeof h.log!=='object') h.log={}; h.log[iso]=v; save(); }
 function delHabit(id){ state.habits=state.habits.filter(h=>h.id!==id); save(); showContent('home'); }
 
 function openEventModal(opts={}){
   const ex=opts.id? state.events.find(e=>e.id===opts.id):null;
   const ev=ex||{ title:'', date:opts.date||todayISO(), start:opts.start||'09:00', end:opts.end||fromMin(minutes(opts.start||'09:00')+60), person:'', room:'', color:'#00fff6', category:'work', notes:'', repeat: opts.repeat!==false, dow: dow(opts.date||todayISO()) };
+  if (ex && ex.recurring && ex.repeat==null) ev.repeat=true;
   document.getElementById('modalBox').innerHTML=`
     <h3>${ex?t('edit'):t('add')}</h3>
     <div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px">
@@ -627,7 +665,7 @@ function openEventModal(opts={}){
       <label>${t('work')}
         <select id="evCat">${['work','study','personal','health','religion','break','other'].map(c=>`<option value="${c}" ${ev.category===c?'selected':''}>${t(c==='religion'?'religionCat':c)}</option>`).join('')}</select>
       </label>
-      <label style="display:flex;align-items:center;gap:8px;grid-column:1/-1"><input type="checkbox" id="evRep" ${ev.repeat?'checked':''}> ${t('repeat')}</label>
+      <label style="display:flex;align-items:center;gap:8px;grid-column:1/-1"><input type="checkbox" id="evRep" ${ev.repeat||ev.recurring?'checked':''}> ${t('repeat')}</label>
     </div>
     <div class="row" style="justify-content:flex-end;margin-top:12px">
       <button class="ghost" onclick="closeModal()">${t('cancel')}</button>
@@ -639,18 +677,20 @@ function openEventModal(opts={}){
 }
 function closeModal(){ document.getElementById('modalRoot').classList.remove('show'); }
 function saveEvent(id){
-  const title=document.getElementById('evTitle').value.trim(); if(!title){ toast(t('title')); return; }
-  const date=document.getElementById('evDate').value;
-  const start=document.getElementById('evStart').value, end=document.getElementById('evEnd').value;
+  const title=(val('evTitle')?.value||'').trim(); if(!title){ toast(t('title')); return; }
+  const date=val('evDate')?.value||todayISO();
+  const start=hhmm(val('evStart')?.value||'09:00'), end=hhmm(val('evEnd')?.value||'10:00');
   if (minutes(end)<=minutes(start)) { toast(t('end')); return; }
-  const rec={ title, date, start, end, person:evPerson.value, room:evRoom.value, color:evColor.value, category:evCat.value, notes:evNotes.value, repeat:evRep.checked, dow:dow(date), done:false };
-  if (id) Object.assign(state.events.find(e=>e.id===id), rec);
+  const prev=id? state.events.find(e=>e.id===id): null;
+  const rec={ title, date, start, end, person:val('evPerson')?.value||'', room:val('evRoom')?.value||'', color:val('evColor')?.value||'#00fff6', category:val('evCat')?.value||'work', notes:val('evNotes')?.value||'', repeat:!!val('evRep')?.checked, dow:dow(date), done: prev? !!prev.done : false };
+  if (id) { if (!prev) return; Object.assign(prev, rec); }
   else state.events.push({ id:uid(), ...rec });
   save(); beep(740,90); closeModal(); toast(t('saved')); showContent('home');
 }
 function deleteEvent(id){ state.events=state.events.filter(e=>e.id!==id); save(); closeModal(); showContent('home'); }
 
 function loadDemo(){
+  if (state.events.length && !confirm(t('demo')+'?')) return;
   const palette=['#00fff6','#ff7ad9','#ffe14d','#7dffc3','#9ad8ff','#ffb36b'];
   const blocks=[
     [0,'Deep work','09:00','11:00','Office','Focus room',0],
@@ -679,8 +719,13 @@ function loadDemo(){
 }
 
 function hijri(){
-  try { return new Intl.DateTimeFormat(state.profile.lang==='ar'?'ar':'en-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(new Date()); }
-  catch { return ''; }
+  try {
+    const loc = state.profile.lang==='ar' ? 'ar-SA-u-ca-islamic' : state.profile.lang==='ur' ? 'ur-PK-u-ca-islamic' : 'en-u-ca-islamic';
+    return new Intl.DateTimeFormat(loc, {day:'numeric', month:'long', year:'numeric'}).format(new Date());
+  } catch {
+    try { return new Intl.DateTimeFormat('en-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(new Date()); }
+    catch { return ''; }
+  }
 }
 function nextPrayer(){
   const now=new Date().getHours()*60+new Date().getMinutes();
@@ -750,7 +795,7 @@ function renderLanguage(root){
 function setLang(id){ state.profile.lang=id; save(); applyChrome(); showContent('language'); }
 
 function renderClocks(root){
-  root.innerHTML=`<div class="tabs">${['stopwatch','timer','pomodoro','alarms'].map(k=>`<button class="tab ${clockTab===k?'active':''}" onclick="clockTab='${k}';showContent('stopwatch')">${t(k==='stopwatch'?'startSw':k)}</button>`).join('')}</div>
+  root.innerHTML=`<div class="tabs">${['stopwatch','timer','pomodoro','alarms'].map(k=>`<button class="tab ${clockTab===k?'active':''}" onclick="clockTab='${k}';showContent('stopwatch')">${t(k)}</button>`).join('')}</div>
     <div class="glass card sw" id="clockBody"></div>`;
   const el=root.querySelector('#clockBody');
   if (clockTab==='stopwatch') el.innerHTML=`
@@ -789,29 +834,53 @@ function renderClocks(root){
 }
 function fmtSw(ms){ const cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000)%60,h=Math.floor(ms/3600000); return `${pad(h)}:${pad(m)}:${pad(s)}.${pad(cs)}`; }
 function fmtSec(s){ s=Math.max(0,s|0); return `${pad(Math.floor(s/60))}:${pad(s%60)}`; }
-function toggleSw(){ if(sw.run){ sw.run=false; sw.ms=Date.now()-sw.t0; clearInterval(sw.int);} else { sw.run=true; sw.t0=Date.now()-sw.ms; sw.int=setInterval(()=>{ sw.ms=Date.now()-sw.t0; const e=document.getElementById('swTime'); if(e) e.textContent=fmtSw(sw.ms); },30);} if(page==='stopwatch'&&clockTab==='stopwatch') showContent('stopwatch'); }
-function lapSw(){ if(sw.ms){ sw.laps.unshift(sw.ms); showContent('stopwatch'); } }
-function resetSw(){ sw={ ms:0, run:false, t0:0, laps:[], int:null }; showContent('stopwatch'); }
-function setTimer(){ const m=Number(document.getElementById('tmMin').value||25); timer.total=m*60; timer.left=m*60; showContent('stopwatch'); }
+function toggleSw(){
+  if (sw.run){ sw.run=false; sw.ms=Date.now()-sw.t0; clearInterval(sw.int); }
+  else {
+    clearInterval(sw.int);
+    sw.run=true; sw.t0=Date.now()-sw.ms;
+    sw.int=setInterval(()=>{ if(!sw.run) return; sw.ms=Date.now()-sw.t0; const e=val('swTime'); if(e) e.textContent=fmtSw(sw.ms); },30);
+  }
+  if (page==='stopwatch' && clockTab==='stopwatch') showContent('stopwatch');
+}
+function lapSw(){ if(sw.ms){ sw.laps.unshift(sw.ms); if (page==='stopwatch') showContent('stopwatch'); } }
+function resetSw(){ sw.run=false; clearInterval(sw.int); sw.ms=0; sw.t0=0; sw.laps=[]; sw.int=null; if (page==='stopwatch') showContent('stopwatch'); }
+function setTimer(){
+  const m=Math.min(180, Math.max(1, Number(val('tmMin')?.value||25)));
+  clearInterval(timer.int); timer.run=false; timer.total=m*60; timer.left=m*60;
+  if (page==='stopwatch') showContent('stopwatch');
+}
 function toggleTimer(){
   if (timer.run){ timer.run=false; clearInterval(timer.int); }
-  else { timer.run=true; timer.int=setInterval(()=>{ timer.left--; const e=document.getElementById('tmTime'); if(e) e.textContent=fmtSec(timer.left); if(timer.left<=0){ timer.run=false; clearInterval(timer.int); beep(440,400); beep(880,400); toast(t('timer')); } },1000); }
+  else {
+    clearInterval(timer.int); timer.run=true;
+    timer.int=setInterval(()=>{
+      if(!timer.run) return;
+      timer.left--; const e=val('tmTime'); if(e) e.textContent=fmtSec(timer.left);
+      if(timer.left<=0){ timer.run=false; timer.left=0; clearInterval(timer.int); beep(440,400); beep(880,400); toast(t('timer')); if(page==='stopwatch'&&clockTab==='timer') showContent('stopwatch'); }
+    },1000);
+  }
   if (page==='stopwatch') showContent('stopwatch');
 }
-function resetTimer(){ timer.run=false; clearInterval(timer.int); timer.left=timer.total; showContent('stopwatch'); }
+function resetTimer(){ timer.run=false; clearInterval(timer.int); timer.left=timer.total; if (page==='stopwatch') showContent('stopwatch'); }
 function togglePomo(){
   if (pomo.run){ pomo.run=false; clearInterval(pomo.int); }
-  else { pomo.run=true; pomo.int=setInterval(()=>{
-    pomo.left--; const e=document.getElementById('pmTime'); if(e) e.textContent=fmtSec(pomo.left);
-    if (pomo.left<=0){
-      beep(520,300); beep(880,300);
-      if (pomo.phase==='focus'){ pomo.phase='break'; pomo.left=5*60; pomo.cycles++; toast(t('shortBr')); }
-      else { pomo.phase='focus'; pomo.left=25*60; toast(t('focus')); }
-    }
-  },1000); }
+  else {
+    clearInterval(pomo.int); pomo.run=true;
+    pomo.int=setInterval(()=>{
+      if(!pomo.run) return;
+      pomo.left--; const e=val('pmTime'); if(e) e.textContent=fmtSec(pomo.left);
+      if (pomo.left<=0){
+        beep(520,300); beep(880,300);
+        if (pomo.phase==='focus'){ pomo.phase='break'; pomo.left=5*60; pomo.cycles++; toast(t('shortBr')); }
+        else { pomo.phase='focus'; pomo.left=25*60; toast(t('focus')); }
+        if (page==='stopwatch' && clockTab==='pomodoro') showContent('stopwatch');
+      }
+    },1000);
+  }
   if (page==='stopwatch') showContent('stopwatch');
 }
-function resetPomo(){ pomo={ left:25*60, run:false, int:null, phase:'focus', cycles:0 }; showContent('stopwatch'); }
+function resetPomo(){ pomo.run=false; clearInterval(pomo.int); pomo.left=25*60; pomo.phase='focus'; pomo.cycles=0; pomo.int=null; if (page==='stopwatch') showContent('stopwatch'); }
 function addAlarm(){ const time=document.getElementById('alTime').value; const label=document.getElementById('alLab').value||'Alarm'; state.alarms.push({id:uid(), time, label, on:true, last:''}); save(); showContent('stopwatch'); }
 function aOn(id,v){ const a=state.alarms.find(x=>x.id===id); if(a){ a.on=v; save(); } }
 function delAlarm(id){ state.alarms=state.alarms.filter(a=>a.id!==id); save(); showContent('stopwatch'); }
@@ -885,11 +954,11 @@ function renderProfile(root){
 }
 function setTheme(id){ state.profile.theme=id; save(); applyChrome(); showContent('profile'); }
 function saveProfile(){
-  state.profile.name=pfName.value.trim();
-  state.profile.hourStart=Number(pfS.value||7);
-  state.profile.hourEnd=Number(pfE.value||21);
-  state.profile.notif=pfN.checked; state.profile.sound=pfSo.checked;
-  state.profile.pin=pfPin.value.replace(/\D/g,'').slice(0,6);
+  state.profile.name=(val('pfName')?.value||'').trim();
+  state.profile.hourStart=Number(val('pfS')?.value||7);
+  state.profile.hourEnd=Number(val('pfE')?.value||21);
+  state.profile.notif=!!val('pfN')?.checked; state.profile.sound=!!val('pfSo')?.checked;
+  state.profile.pin=(val('pfPin')?.value||'').replace(/\D/g,'').slice(0,6);
   if (state.profile.notif && 'Notification' in window && Notification.permission==='default') Notification.requestPermission();
   save(); applyChrome(); toast(t('saved')); beep(700,80);
 }
@@ -913,20 +982,25 @@ document.getElementById('importFile').onchange=async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f) return;
   try {
     const data=JSON.parse(await f.text());
-    state={ ...defaultState(), ...data, profile:{ ...defaultState().profile, ...(data.profile||{}) } };
+    if (!data || typeof data!=='object' || Array.isArray(data)) throw new Error('bad');
+    const base=defaultState();
+    state={ ...base, ...data, profile:{ ...base.profile, ...(data.profile||{}) } };
+    ['events','tasks','notes','habits','alarms','customReligion'].forEach(k => { if (!Array.isArray(state[k])) state[k]=base[k]; });
+    if (!state.prayers || typeof state.prayers!=='object') state.prayers=base.prayers;
+    if (!state.prayerLog || typeof state.prayerLog!=='object') state.prayerLog={};
     save(); applyChrome(); showContent(page); toast(t('imported'));
   } catch { toast(t('invalid')); }
 };
 
 function runSearch(q){
-  q=q.trim().toLowerCase(); if(!q) return;
+  q=(q||'').trim().toLowerCase(); if(!q) return;
   const hits=[
-    ...state.events.filter(e=>`${e.title} ${e.person} ${e.room}`.toLowerCase().includes(q)).map(e=>({k:'event', t:e.title, id:e.id})),
-    ...state.tasks.filter(e=>e.title.toLowerCase().includes(q)).map(e=>({k:'task', t:e.title})),
-    ...state.notes.filter(e=>(e.text||'').toLowerCase().includes(q)).map(e=>({k:'note', t:e.text.slice(0,40)}))
-  ].slice(0,8);
-  if (!hits.length) { toast('0'); return; }
-  document.getElementById('modalBox').innerHTML=`<h3>${t('search')}</h3>${hits.map(h=>`<div class="item" onclick="${h.k==='event'?`openEventModal({id:'${h.id}'})`:`closeModal();state.homeTab='${h.k==='task'?'tasks':'notes'}';showContent('home')`}"><b>${esc(h.k)}</b> ${esc(h.t)}</div>`).join('')}`;
+    ...state.events.filter(e=>`${e.title||''} ${e.person||''} ${e.room||''}`.toLowerCase().includes(q)).map(e=>({k:'event', t:e.title, id:e.id})),
+    ...state.tasks.filter(e=>(e.title||'').toLowerCase().includes(q)).map(e=>({k:'task', t:e.title})),
+    ...state.notes.filter(e=>(e.text||'').toLowerCase().includes(q)).map(e=>({k:'note', t:(e.text||'').slice(0,40)}))
+  ].slice(0,10);
+  document.getElementById('modalBox').innerHTML=`<h3>${t('search')}</h3>${hits.length? hits.map(h=>`<div class="item" onclick="${h.k==='event'?`openEventModal({id:'${h.id}'})`:`closeModal();state.homeTab='${h.k==='task'?'tasks':'notes'}';showContent('home')`}"><b>${esc(h.k)}</b> ${esc(h.t)}</div>`).join('') : `<p class="empty">${t('noResults')}</p>`}
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="ghost" onclick="closeModal()">${t('cancel')}</button></div>`;
   document.getElementById('modalRoot').classList.add('show');
 }
 
@@ -942,7 +1016,7 @@ function tickClock(){
   const hm=`${pad(n.getHours())}:${pad(n.getMinutes())}`;
   const iso=todayISO(n);
   state.alarms.forEach(a=>{
-    if (a.on && a.time===hm && a.last!==iso){ a.last=iso; save(); beep(880,250); beep(660,250); toast(a.label||t('alarms'));
+    if (a.on && hhmm(a.time)===hm && a.last!==iso){ a.last=iso; save(); beep(880,250); beep(660,250); toast(a.label||t('alarms'));
       if ('Notification' in window && Notification.permission==='granted') new Notification('Workm', { body: a.label||a.time });
     }
   });
@@ -959,26 +1033,33 @@ function tickClock(){
 setInterval(tickClock, 1000); tickClock();
 
 (function particles(){
-  const c=document.getElementById('fx'), x=c.getContext('2d');
+  const c=document.getElementById('fx'); if(!c || !c.getContext) return;
+  const x=c.getContext('2d'); if(!x) return;
   let w,h, ps;
   function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; ps=Array.from({length:40},()=>({x:Math.random()*w,y:Math.random()*h,v:0.3+Math.random()*0.8,r:1+Math.random()*2})); }
   addEventListener('resize', resize); resize();
   (function loop(){
     x.clearRect(0,0,w,h); x.fillStyle='rgba(255,255,255,.55)';
-    ps.forEach(p=>{ p.y-=p.v; if(p.y<0){ p.y=h; p.x=Math.random()*w; } x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); });
+    (ps||[]).forEach(p=>{ p.y-=p.v; if(p.y<0){ p.y=h; p.x=Math.random()*w; } x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); });
     requestAnimationFrame(loop);
   })();
 })();
 
+function welcomeGo(demo){
+  state.profile.name=(val('welcomeName')?.value||'Planner').trim()||'Planner';
+  save(); closeModal();
+  if (demo) loadDemo(); else showContent('home');
+}
+
 if (state.profile.pin) document.getElementById('lockScreen').classList.add('show');
-if (!state.profile.name) {
+if (!state.profile.name && !state.profile.pin) {
   setTimeout(()=>{
     document.getElementById('modalBox').innerHTML=`<h3 class="neon">WORKM PLANNER</h3>
       <p class="muted" style="margin:8px 0 12px">${t('quote')}</p>
-      <label>${t('name')}<input id="welcomeName" placeholder="Your name"></label>
+      <label>${t('name')}<input id="welcomeName" placeholder="Your name" onkeydown="if(event.key==='Enter')welcomeGo(false)"></label>
       <div class="row" style="margin-top:12px">
-        <button class="btn" onclick="state.profile.name=(welcomeName.value||'Planner');save();closeModal();showContent('home')">${t('save')}</button>
-        <button class="ghost" onclick="state.profile.name=(welcomeName.value||'Planner');closeModal();loadDemo()">${t('demo')}</button>
+        <button class="btn" onclick="welcomeGo(false)">${t('save')}</button>
+        <button class="ghost" onclick="welcomeGo(true)">${t('demo')}</button>
       </div>`;
     document.getElementById('modalRoot').classList.add('show');
   }, 200);
